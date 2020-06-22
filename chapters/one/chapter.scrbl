@@ -413,3 +413,19 @@ what
  (gcd 2 (remainder 4 2))
  (gcd 2 0)
  2]
+
+@section{Exercise 1.21}
+@examples[#:eval sicp-evaluator #:label "Just define it as in the book..."
+          (define (smallest-divisor n)
+            (define (find-divisor n test-divisor)
+              (cond ((> (square test-divisor) n) n)
+                    ((divides? test-divisor n) test-divisor)
+                    (else (find-divisor n (+ test-divisor 1)))))
+            (define (divides? a b)
+              (= (remainder b a) 0))
+            (find-divisor n 2))]
+
+@examples[#:eval sicp-evaluator #:label "And evaluate:"
+          (smallest-divisor 199)
+          (smallest-divisor 1999)
+          (smallest-divisor 19999)]
