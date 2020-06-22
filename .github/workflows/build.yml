@@ -35,4 +35,12 @@ jobs:
         git config user.name "Automation"
         git add -v docs/*
         git diff --quiet && echo "No changes." || git commit -a -v -m "Build Pages" && git push -v
+    
+    - name: Trigger GitHub pages rebuild
+      run: |
+        curl --fail --request POST \
+        --url https://api.github.com/repos/${{ github.repository }}/pages/builds \
+        --header "Authorization: Bearer $USER_TOKEN"
+      env:
+        USER_TOKEN: ${{ secrets.USER_TOKEN }}
 
