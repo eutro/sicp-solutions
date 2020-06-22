@@ -1,5 +1,7 @@
 # Solutions to [SICP](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html)
 
+The built site can be found [here](https://eutropius225.github.io/sicp-solutions/index.html).
+
 ## Requirements
 
 - [Racket](https://racket-lang.org/)
