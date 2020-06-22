@@ -14,13 +14,20 @@ jobs:
     - name: Setup Racket environment
       uses: Bogdanp/setup-racket@v0.8
 
-    - name: Install Racket dependencies
+    - name: Cache dependencies
+      uses: actions/cache@v2.0.0
+      with:
+        path: ~/.racket
+        key: ${{ runner.os }}-raco-${{ hashFiles('dependencies/raco-requirements.txt') }}
+
+    - name: Install dependencies
       run: |
-        raco pkg install sicp
-        raco pkg install scribble-math
+        cd dependencies
+        sh install-deps.sh
+        cd ..
     
     - name: Run build script
-      run: bash build.sh
+      run: sh build.sh
       
     - name: Add and push
       run: |
