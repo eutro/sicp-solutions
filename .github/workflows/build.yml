@@ -27,3 +27,6 @@ jobs:
         git add -v docs/*
         git commit -a -v -m "Build Pages"
         git push -v
+      env:
+        GIT_AUTHOR_NAME: Automation
+        GIT_AUTHOR_EMAIL: $GITHUB_ACTOR@users.noreply.github.com
