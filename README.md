@@ -5,7 +5,7 @@
 - [Racket](https://racket-lang.org/)
   - SICP `raco pkg install sicp`
   - Scribble Math `raco pkg install scribble-math`
-- [Asymptote](https://asymptote.sourceforge.io/)
+- [Asymptote](https://asymptote.sourceforge.io/) (Only if regenerating diagrams)
 
 ## Building
 
