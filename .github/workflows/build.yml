@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Racket environment
+      uses: Bogdanp/setup-racket@v0.8
+
+    - name: Install Racket dependencies
+      run: |
+        raco pkg install sicp
+        raco pkg install scribble-math
+    
+    - name: Run build script
+      run: bash build.sh
+      
+    # TODO push?
