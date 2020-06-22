@@ -22,4 +22,8 @@ jobs:
     - name: Run build script
       run: bash build.sh
       
-    # TODO push?
+    - name: Add and push
+      run: |
+        git add -v docs/*
+        git commit -a -v -m "Build Pages"
+        git push -v

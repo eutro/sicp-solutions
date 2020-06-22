@@ -1,3 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
-scribble --dest out --htmls chapters/main.scrbl
+rm -rf docs
+scribble --htmls --dest-name docs chapters/main.scrbl
