@@ -429,3 +429,35 @@ what
           (smallest-divisor 199)
           (smallest-divisor 1999)
           (smallest-divisor 19999)]
+
+@section{Exercise 1.22}
+@examples[#:eval sicp-evaluator #:label "Boilerplate from the book..."
+          (define (timed-prime-test n)
+            (newline)
+            (display n)
+            (start-prime-test n (runtime)))
+          (define (start-prime-test n start-time)
+            (if (prime? n)
+                (report-prime (- (runtime) start-time))
+                #f))
+          (define (report-prime elapsed-time)
+            (display " *** ")
+            (display elapsed-time))
+          (define (prime? n)
+            (= n (smallest-divisor n)))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (search-for-primes start)
+            (define (iter i count)
+              (if (< count 3)
+                  (iter (+ i 2)
+                        (if (timed-prime-test i)
+                            (inc count)
+                            count))))
+            (iter start 0))]
+
+@examples[#:eval sicp-evaluator
+          (search-for-primes 1001)
+          (search-for-primes 10001)
+          (search-for-primes 100001)
+          (search-for-primes 1000001)]
