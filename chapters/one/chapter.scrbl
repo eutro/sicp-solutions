@@ -487,6 +487,7 @@ what
 
 The expectation is not entirely correct, since the @tt{if} statement requires calculation as well.
 
+@section{Exercise 1.24}
 @examples[#:eval sicp-evaluator #:label "From the book:"
           (define (expmod base exp m)
             (cond ((= exp 0) 1)
@@ -507,7 +508,7 @@ The expectation is not entirely correct, since the @tt{if} statement requires ca
 
 @examples[#:eval sicp-evaluator #:label #f
           (define (start-prime-test n start-time)
-            (if (fast-prime? n 5)
+            (if (fast-prime? n 3)
                 (if (prime? n)
                     (string-append (report-prime (- (runtime) start-time))
                                    " <- true positive")
