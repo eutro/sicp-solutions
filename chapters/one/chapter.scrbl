@@ -433,16 +433,18 @@ what
 @section{Exercise 1.22}
 @examples[#:eval sicp-evaluator #:label "Boilerplate from the book..."
           (define (timed-prime-test n)
-            (newline)
-            (display n)
-            (start-prime-test n (runtime)))
+            (define result (start-prime-test n (runtime)))
+            (if result
+                (begin (newline)
+                       (display n)
+                       (display result))
+                #f))
           (define (start-prime-test n start-time)
             (if (prime? n)
                 (report-prime (- (runtime) start-time))
                 #f))
           (define (report-prime elapsed-time)
-            (display " *** ")
-            (display elapsed-time))
+            (string-append " *** " (number->string elapsed-time)))
           (define (prime? n)
             (= n (smallest-divisor n)))]
 
@@ -457,13 +459,13 @@ what
             (iter start 0))]
 
 @examples[#:eval sicp-evaluator
-          (search-for-primes 1001)
-          (search-for-primes 10001)
           (search-for-primes 100001)
-          (search-for-primes 1000001)]
+          (search-for-primes 1000001)
+          (search-for-primes 10000001)
+          (search-for-primes 100000001)]
 
 @section{Exercise 1.23}
-@examples[#:eval sicp-evaluator
+@examples[#:eval sicp-evaluator #:label #f
           (define (smallest-divisor n)
             (define (find-divisor n test-divisor)
               (cond ((> (square test-divisor) n) n)
@@ -478,10 +480,46 @@ what
             (find-divisor n 2))]
 
 @examples[#:eval sicp-evaluator
-          (search-for-primes 1001)
-          (search-for-primes 10001)
           (search-for-primes 100001)
-          (search-for-primes 1000001)]
+          (search-for-primes 1000001)
+          (search-for-primes 10000001)
+          (search-for-primes 100000001)]
 
+The expectation is not entirely correct, since the @tt{if} statement requires calculation as well.
 
+@examples[#:eval sicp-evaluator #:label "From the book:"
+          (define (expmod base exp m)
+            (cond ((= exp 0) 1)
+                  ((even? exp)
+                   (remainder (square (expmod base (/ exp 2) m))
+                              m))
+                  (else
+                   (remainder (* base (expmod base (- exp 1) m))
+                              m))))
+          (define (fermat-test n)
+            (define (try-it a)
+              (= (expmod a n n) a))
+            (try-it (+ 1 (random (- n 1)))))
+          (define (fast-prime? n times)
+            (cond ((= times 0) true)
+                  ((fermat-test n) (fast-prime? n (- times 1)))
+                  (else false)))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (start-prime-test n start-time)
+            (if (fast-prime? n 5)
+                (if (prime? n)
+                    (string-append (report-prime (- (runtime) start-time))
+                                   " <- true positive")
+                    (begin (newline)
+                           (display n)
+                           (display " <- false positive")
+                           #f))
+                #f))]
+
+@examples[#:eval sicp-evaluator
+          (search-for-primes 100001)
+          (search-for-primes 1000001)
+          (search-for-primes 10000001)
+          (search-for-primes 100000001)]
 
