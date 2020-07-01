@@ -461,3 +461,27 @@ what
           (search-for-primes 10001)
           (search-for-primes 100001)
           (search-for-primes 1000001)]
+
+@section{Exercise 1.23}
+@examples[#:eval sicp-evaluator
+          (define (smallest-divisor n)
+            (define (find-divisor n test-divisor)
+              (cond ((> (square test-divisor) n) n)
+                    ((divides? test-divisor n) test-divisor)
+                    (else (find-divisor n (next test-divisor)))))
+            (define (divides? a b)
+              (= (remainder b a) 0))
+            (define (next x)
+              (if (= x 2)
+                  3
+                  (+ x 2)))
+            (find-divisor n 2))]
+
+@examples[#:eval sicp-evaluator
+          (search-for-primes 1001)
+          (search-for-primes 10001)
+          (search-for-primes 100001)
+          (search-for-primes 1000001)]
+
+
+
