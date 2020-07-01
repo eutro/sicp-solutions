@@ -509,13 +509,15 @@ The expectation is not entirely correct, since the @tt{if} statement requires ca
 @examples[#:eval sicp-evaluator #:label #f
           (define (start-prime-test n start-time)
             (if (fast-prime? n 3)
-                (if (prime? n)
-                    (string-append (report-prime (- (runtime) start-time))
-                                   " <- true positive")
-                    (begin (newline)
-                           (display n)
-                           (display " <- false positive")
-                           #f))
+                (let ((time (- (runtime) start-time)))
+                  (if (prime? n)
+                      (string-append (report-prime time)
+                                     " <- true positive")
+                      (begin (newline)
+                             (display n)
+                             (display (report-prime time))
+                             (display " <- false positive")
+                             #f)))
                 #f))]
 
 @examples[#:eval sicp-evaluator
