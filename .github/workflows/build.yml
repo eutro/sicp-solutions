@@ -33,5 +33,8 @@ jobs:
       run: |
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         git config user.name "Automation"
-        git add -v docs/*
+        git checkout gh-pages
+        mv docs/* ./
+        git add -u
+        git add -v *
         git diff --staged --quiet && echo "No changes." || git commit -a -v -m "Build Pages" && git push -v
