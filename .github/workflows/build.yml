@@ -10,6 +10,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Setup Racket environment
       uses: Bogdanp/setup-racket@v0.8
@@ -33,7 +35,7 @@ jobs:
       run: |
         git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         git config user.name "Automation"
-        git checkout gh-pages
+        git switch gh-pages
         mv docs/* ./
         git add -u
         git add -v *
