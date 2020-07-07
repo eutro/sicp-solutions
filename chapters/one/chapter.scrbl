@@ -526,3 +526,66 @@ The expectation is not entirely correct, since the @tt{if} statement requires ca
           (search-for-primes 10000001)
           (search-for-primes 100000001)]
 
+The times are expected to be much better, and scale much slower, than those in the previous exercises.
+
+@section{Exercise 1.25}
+Alyssa is incorrect. @tt{(exp a b)} requires @${a^b} to be calculated, which can get very large and be irrepresentable.
+However, @tt{expmod} is not tail-recursive, and thus must retain all sub-computations in memory.
+
+@section{Exercise 1.26}
+The given @tt{expmod} procedure calls at most one more @tt{expmod} itself, passing it to @tt{square} having calculated it once,
+while Louis' calculates it twice, multiplying them together, wasting time.
+
+@section{Exercise 1.27}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (all-congruent? number)
+            (define (is-congruent? a n)
+              (= (expmod a n n) a))
+            (define (iter tested)
+              (cond ((= 1 tested) #t)
+                    ((is-congruent? tested number) (iter (dec tested)))
+                    (else #f)))
+            (iter (dec number)))]
+
+@examples[#:eval sicp-evaluator #:label "Some expected results:"
+          (all-congruent? 100)
+          (all-congruent? 113)
+          (all-congruent? 560)]
+
+@examples[#:eval sicp-evaluator #:label "Some Carmichael numbers:"
+          (all-congruent? 561)
+          (all-congruent? 1105)
+          (all-congruent? 1729)]
+
+@section{Exercise 1.28}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (miller-rabin n times)
+            (define n-1 (dec n))
+            (define (do-test a)
+              (= 1 (expmod a n-1 n)))
+            (define (expmod base exp m)
+              (define (mulmod x y)
+                (define rem (remainder (* x y) m))
+                (if (and (= x y)
+                         (= rem 1)
+                         (not (= x 1))
+                         (not (= x (dec m))))
+                    0
+                    rem))
+              (hyperop base exp mulmod 1))
+            (define (loop i)
+              (cond ((= i 0) #t)
+                    ((do-test (inc (random (dec n)))) (loop (dec i)))
+                    (else #f)))
+            (loop times))]
+
+@examples[#:eval sicp-evaluator
+          (miller-rabin 1105 10)
+          (miller-rabin 5 10)
+          (miller-rabin 23 10)
+          (miller-rabin 113 10)]
+
+
+          
