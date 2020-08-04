@@ -587,5 +587,43 @@ while Louis' calculates it twice, multiplying them together, wasting time.
           (miller-rabin 23 10)
           (miller-rabin 113 10)]
 
+@section{Exercise 1.29}
 
-          
+Firstly, define @tt{sum} and @tt{integral} as in the book:
+@examples[#:eval sicp-evaluator #:label #f
+          (define (sum term a next b)
+            (if (> a b)
+                0
+                (+ (term a)
+                   (sum term (next a) next b))))
+
+          (define (integral f a b dx)
+            (define (add-dx x) (+ x dx))
+            (* (sum f (+ a (/ dx 2.0)) add-dx b)
+               dx))]
+
+Then, define the @tt{simpson} procedure:
+@examples[#:eval sicp-evaluator #:label #f
+          (define (simpson f a b n)
+            (define h (/ (- b a)
+                         n))
+            (define (y k)
+              (f (+ a
+                    (* k h))))
+            (* (/ h 3)
+               (+ (y 0)
+                  (sum (lambda (i)
+                         (* (if (even? i)
+                                2
+                                (/ 1 2))
+                            (y i)))
+                       1
+                       inc
+                       (dec n))
+                  (y n))))]
+
+@examples[#:eval sicp-evaluator
+          (integral cube 0 1 0.01)
+          (simpson cube 0 1 100)
+          (integral cube 0 1 0.001)
+          (simpson cube 0 1 1000)]          
