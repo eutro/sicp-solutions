@@ -626,4 +626,4 @@ Then, define the @tt{simpson} procedure:
           (integral cube 0 1 0.01)
           (simpson cube 0 1 100)
           (integral cube 0 1 0.001)
-          (simpson cube 0 1 1000)]          
+          (simpson cube 0 1 1000)]
