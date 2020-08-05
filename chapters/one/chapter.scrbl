@@ -705,3 +705,35 @@ Guess I'll subtly skip ahead for a bit...
           (define product (accumulator-iter * 1))
 
           (factorial 6)]
+
+@section{Exercise 1.32}
+
+@subsection{Exercise 1.32.a}
+
+This just involves un-currying the previous implementations.
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (accumulate combiner null-value term a next b)
+            ((accumulator-recur combiner null-value) term a next b))
+
+          (define (sum term a next b)
+            (accumulate + 0 term a next b))
+
+          (define (product term a next b)
+            (accumulate * 1 term a next b))]
+
+@examples[#:eval sicp-evaluator
+          (sum-integers 1 10)
+          (factorial 6)]
+
+@subsection{Exercise 1.32.b}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (accumulate combiner null-value term a next b)
+            ((accumulator-iter combiner null-value) term a next b))]
+
+@examples[#:eval sicp-evaluator
+          (sum-integers 1 10)
+          (factorial 6)]
+
+Currying is cooler though.
