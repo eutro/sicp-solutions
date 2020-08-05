@@ -800,3 +800,34 @@ Currying is cooler though.
  (2 2)]
 
 and fail, as @tt{2} is not a procedure.
+
+@section{Exercise 1.35}
+
+@${\phi} is defined as
+
+@$${{1 + \phi \over \phi} = \phi}
+
+which can simply be rearranged to
+
+@$${\phi = 1 + {1 \over \phi}}
+
+Thus, it is the fixed point of @${x \rightarrow 1 + {1 \over x}}.
+
+Firstly, define @tt{fixed-point}  as in the book:
+@examples[#:eval sicp-evaluator #:label #f
+          (define tolerance 0.00001)
+          (define (fixed-point f first-guess)
+            (define (close-enough? v1 v2)
+              (< (abs (- v1 v2)) tolerance))
+            (define (try guess)
+              (let ((next (f guess)))
+                (if (close-enough? guess next)
+                    next
+                    (try next))))
+            (try first-guess))]
+
+Then @${\phi} comes to:
+@examples[#:eval sicp-evaluator #:label #f
+          (fixed-point (lambda (x) (+ 1
+                                      (/ 1 x)))
+                       1.0)]
