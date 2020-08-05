@@ -789,3 +789,14 @@ Currying is cooler though.
 
 @examples[#:eval sicp-evaluator
           (product-relative-primes 10)]
+
+@section{Exercise 1.34}
+
+@racket[(f f)] would evaluate as such,
+
+@racketblock[
+ (f f)
+ (f 2)
+ (2 2)]
+
+and fail, as @tt{2} is not a procedure.
