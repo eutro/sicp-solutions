@@ -327,8 +327,8 @@ And thus @${Fib(n)} is the closest integer to @${\phi^n \over \sqrt{5}}.
 @section{Exercise 1.15}
 
 @subsection{Exercise 1.15.a}
-@tt{p} "is applied five times:"
-@examples[#:eval sicp-evaluator
+@tt{p} is applied five times:
+@examples[#:eval sicp-evaluator #:label #f
           (define (cube x) (* x x x))
           (define (p x)
             (begin (display "p called\n")
