@@ -737,3 +737,55 @@ This just involves un-currying the previous implementations.
           (factorial 6)]
 
 Currying is cooler though.
+
+@section{Exercise 1.33}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (filtered-accumulate predicate
+                                       combiner
+                                       null-value
+                                       term
+                                       a
+                                       next
+                                       b)
+            (define (iter a result)
+              (cond ((> a b) result)
+                    ((predicate a) (iter (next a)
+                                         (combiner result
+                                                   (term a))))
+                    (else (iter (next a)
+                                result))))
+            (iter a null-value))]
+
+@subsection{Exercise 1.33.a}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (mr-prime? x) (miller-rabin x 10))
+
+          (define (sum-prime-cubes a b)
+            (filtered-accumulate mr-prime?
+                                 +
+                                 0
+                                 cube
+                                 a
+                                 inc
+                                 b))]
+
+@examples[#:eval sicp-evaluator
+          (sum-prime-cubes 2 5)]
+
+@subsection{Exercise 1.33.b}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (product-relative-primes n)
+            (filtered-accumulate (lambda (x)
+                                   (= 1 (gcd x n)))
+                                 *
+                                 1
+                                 identity
+                                 1
+                                 inc
+                                 (dec n)))]
+
+@examples[#:eval sicp-evaluator
+          (product-relative-primes 10)]
