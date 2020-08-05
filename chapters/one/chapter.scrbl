@@ -647,3 +647,61 @@ Then, define the @tt{simpson} procedure:
           (define (sum-cubes a b)
             (sum cube a inc b))
           (sum-cubes 1 10)]
+
+@section{Exercise 1.31}
+
+@subsection{Exercise 1.31.a}
+
+Guess I'll subtly skip ahead for a bit...
+
+@examples[#:eval sicp-evaluator #:label "Recursive:"
+          (define (accumulator-recur op id)
+            (define (func term a next b)
+              (if (> a b)
+                  id
+                  (op (term a)
+                      (func term
+                            (next a)
+                            next
+                            b))))
+            func)
+
+          (define product (accumulator-recur * 1))]
+
+@examples[#:eval sicp-evaluator #:label "Factorial:"
+          (define (factorial x)
+            (product identity 1 inc x))
+
+          (factorial 6)]
+
+@examples[#:eval sicp-evaluator #:label "Pi:"
+          (define (approx-pi n)
+            (* 4.0
+               (product (lambda (x)
+                          (/ (* (dec x)
+                                (inc x))
+                             (square x)))
+                        3
+                        (lambda (x)
+                          (+ x 2))
+                        n)))
+
+          (approx-pi 10000)]
+
+@subsection{Exercise 1.31.b}
+
+@examples[#:eval sicp-evaluator #:label "Iterative:"
+          (define (accumulator-iter op id)
+            (define (func term a next b)
+              (define (iter a result)
+                (if (> a b)
+                    result
+                    (iter (next a)
+                          (op result
+                              (term a)))))
+              (iter a id))
+            func)
+
+          (define product (accumulator-iter * 1))
+
+          (factorial 6)]
