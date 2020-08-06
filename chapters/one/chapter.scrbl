@@ -993,3 +993,21 @@ Then @${\phi} comes to:
 
 @examples[#:eval sicp-evaluator
           ((repeated square 2) 5)]
+
+@section{Exercise 1.44}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (smooth f)
+            (lambda (x)
+              (/ (+ (f (- x dx))
+                    (f x)
+                    (f (+ x dx)))
+                 3)))
+
+          (define (smooth-nth f n)
+            ((repeated smooth n) f))]
+
+@examples[#:eval sicp-evaluator
+          ((smooth floor) 1)
+
+          ((smooth-nth floor 10) 1)]
