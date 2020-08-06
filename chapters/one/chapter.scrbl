@@ -984,3 +984,12 @@ Then @${\phi} comes to:
 
 @examples[#:eval sicp-evaluator
           ((compose square inc) 6)]
+
+@section{Exercise 1.43}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (repeated f times)
+            (hyperop f times compose (lambda (x) x)))]
+
+@examples[#:eval sicp-evaluator
+          ((repeated square 2) 5)]
