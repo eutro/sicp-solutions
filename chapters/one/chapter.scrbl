@@ -974,3 +974,13 @@ Then @${\phi} comes to:
 
 @examples[#:eval sicp-evaluator
           (((double (double double)) inc) 5)]
+
+@section{Exercise 1.42}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (compose f g)
+            (lambda (x)
+              (f (g x))))]
+
+@examples[#:eval sicp-evaluator
+          ((compose square inc) 6)]
