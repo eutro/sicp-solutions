@@ -860,3 +860,42 @@ Then @${\phi} comes to:
                                   (/ (log 1000)
                                      (log x))))
                        5)]
+
+@section{Exercise 1.37}
+
+@subsection{Exercise 1.37.a}
+
+@examples[#:eval sicp-evaluator #:label "Recursive:"
+          (define (cont-frac N D k)
+            (define (recur i)
+              (if (> i k)
+                  0
+                  (/ (N i)
+                     (+ (D i) (recur (inc i))))))
+            (recur 1))]
+
+@examples[#:eval sicp-evaluator
+          (define (estimate-phi k)
+            (/ 1
+               (cont-frac (lambda (i) 1.0)
+                          (lambda (i) 1.0)
+                          k)))
+
+          (estimate-phi 13)]
+
+@${k = 13} results in an estimate correct to four decimal places.
+
+@subsection{Exercise 1.37.b}
+
+@examples[#:eval sicp-evaluator #:label "Iterative:"
+          (define (cont-frac N D k)
+            (define (iter i result)
+              (if (< i 1)
+                  result
+                  (iter (dec i)
+                        (/ (N i)
+                           (+ (D i) result)))))
+            (iter k 0))]
+
+@examples[#:eval sicp-evaluator
+          (estimate-phi 13)]
