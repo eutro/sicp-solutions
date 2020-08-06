@@ -964,3 +964,13 @@ Then @${\phi} comes to:
 @examples[#:eval sicp-evaluator
           (newtons-method (cubic 1 2 3) 1)
           (newtons-method (cubic 3 9 81) 1)]
+
+@section{Exercise 1.41}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (double f)
+            (lambda (x)
+              (f (f x))))]
+
+@examples[#:eval sicp-evaluator
+          (((double (double double)) inc) 5)]
