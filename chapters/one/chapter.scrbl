@@ -836,7 +836,7 @@ Then @${\phi} comes to:
 
 @examples[#:eval sicp-evaluator #:label #f
           (define tolerance 0.00001)
-          (define (fixed-point f first-guess)
+          (define (fixed-point-logged f first-guess)
             (define (close-enough? v1 v2)
               (< (abs (- v1 v2)) tolerance))
             (define (try guess)
@@ -849,17 +849,17 @@ Then @${\phi} comes to:
             (try first-guess))]
 
 @examples[#:eval sicp-evaluator #:label "Without average damping:"
-          (fixed-point (lambda (x)
-                         (/ (log 1000)
-                            (log x)))
-                       5)]
+          (fixed-point-logged (lambda (x)
+                                (/ (log 1000)
+                                   (log x)))
+                              5)]
 
 @examples[#:eval sicp-evaluator #:label "With average damping:"
-          (fixed-point (lambda (x)
-                         (average x
-                                  (/ (log 1000)
-                                     (log x))))
-                       5)]
+          (fixed-point-logged (lambda (x)
+                                (average x
+                                         (/ (log 1000)
+                                            (log x))))
+                              5)]
 
 @section{Exercise 1.37}
 
@@ -934,3 +934,33 @@ Then @${\phi} comes to:
           (let ((pi 3.141593))
             (tan-cf (/ pi 4)
                     100))]
+
+@section{Exercise 1.40}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (cubic a b c)
+            (lambda (x)
+              (+ (cube x)
+                 (* a
+                    (square x))
+                 (* b
+                    x)
+                 c)))]
+
+@examples[#:eval sicp-evaluator #:label "Some copying from the book...:"
+          (define dx 0.00001)
+
+          (define (deriv g)
+            (lambda (x)
+              (/ (- (g (+ x dx)) (g x))
+                 dx)))
+
+          (define (newton-transform g)
+            (lambda (x)
+              (- x (/ (g x) ((deriv g) x)))))
+          (define (newtons-method g guess)
+            (fixed-point (newton-transform g) guess))]
+
+@examples[#:eval sicp-evaluator
+          (newtons-method (cubic 1 2 3) 1)
+          (newtons-method (cubic 3 9 81) 1)]
