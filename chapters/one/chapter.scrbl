@@ -684,7 +684,7 @@ Guess I'll subtly skip ahead for a bit...
                         3
                         (lambda (x)
                           (+ x 2))
-                        n)))
+                        (* 3 n))))
 
           (approx-pi 10000)]
 
@@ -916,3 +916,21 @@ Then @${\phi} comes to:
 
 @examples[#:eval sicp-evaluator
           (approx-e 1000)]
+
+@section{Exercise 1.39}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (tan-cf x k)
+              (cont-frac (let ((-x^2 (- 0 (square x))))
+                           (lambda (i)
+                             (if (= i 1)
+                                 x
+                                 -x^2)))
+                         (lambda (i)
+                           (dec (* 2 i)))
+                         k))]
+
+@examples[#:eval sicp-evaluator
+          (let ((pi 3.141593))
+            (tan-cf (/ pi 4)
+                    100))]
