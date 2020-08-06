@@ -875,13 +875,13 @@ Then @${\phi} comes to:
             (recur 1))]
 
 @examples[#:eval sicp-evaluator
-          (define (estimate-phi k)
+          (define (approx-phi k)
             (/ 1
                (cont-frac (lambda (i) 1.0)
                           (lambda (i) 1.0)
                           k)))
 
-          (estimate-phi 13)]
+          (approx-phi 13)]
 
 @${k = 13} results in an estimate correct to four decimal places.
 
@@ -898,4 +898,21 @@ Then @${\phi} comes to:
             (iter k 0))]
 
 @examples[#:eval sicp-evaluator
-          (estimate-phi 13)]
+          (approx-phi 13)]
+
+@section{Exercise 1.38}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (approx-e k)
+            (+ 2
+               (cont-frac (lambda (i) 1.0)
+                          (lambda (i)
+                            (if (= (remainder i 3)
+                                   2)
+                                (* (/ 2 3)
+                                   (inc i))
+                                1))
+                          k)))]
+
+@examples[#:eval sicp-evaluator
+          (approx-e 1000)]
