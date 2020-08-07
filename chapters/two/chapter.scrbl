@@ -47,7 +47,7 @@ Then to define @tt{make-rat}:
             (cond [(= d 0) (error "Division by 0")]
                   [(< d 0) (make-rat (- 0 n)
                                      (- 0 d))]
-                  [else (let [(g (gcd n d))]
+                  [else (let ([g (gcd n d)])
                           (cons (/ n g)
                                 (/ d g)))]))]
 
@@ -55,3 +55,39 @@ Then to define @tt{make-rat}:
           (print-rat (make-rat 6 9))
           (print-rat (make-rat -10 -100))
           (print-rat (make-rat 10 -12))]
+
+@section{Exercise 2.2}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define make-point cons)
+          (define x-point car)
+          (define y-point cdr)
+
+          (define (print-point p)
+            (display "(")
+            (display (x-point p))
+            (display ",")
+            (display (y-point p))
+            (display ")")
+            (newline))
+
+          (define make-segment cons)
+          (define start-segment car)
+          (define end-segment cdr)
+
+          (define (average a b)
+            (/ (+ a b)
+               2))
+
+          (define (midpoint-segment s)
+            (make-point (average (x-point (start-segment s))
+                                 (x-point (end-segment s)))
+                        (average (y-point (start-segment s))
+                                 (y-point (end-segment s)))))]
+
+@examples[#:eval sicp-evaluator
+          (let ([segment (make-segment (make-point 0 1)
+                                       (make-point 3 5))])
+            (print-point (start-segment segment))
+            (print-point (midpoint-segment segment))
+            (print-point (end-segment segment)))]
