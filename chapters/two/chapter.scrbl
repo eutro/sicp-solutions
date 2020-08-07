@@ -91,3 +91,83 @@ Then to define @tt{make-rat}:
             (print-point (start-segment segment))
             (print-point (midpoint-segment segment))
             (print-point (end-segment segment)))]
+
+@section{Exercise 2.3}
+
+First, it is worth implementing some functions that act on
+top of the abstraction, to identify what should be required
+of it.
+
+Area and perimeter are those which were requested...
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (rect-area rect)
+            (* (rect-width rect)
+               (rect-height rect)))
+          (define (rect-perimeter rect)
+            (* (+ (rect-height rect)
+                  (rect-width rect))
+               2))]
+
+Thus, for that which is required, a simple pair
+of width and height is sufficient.
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (make-rect width height)
+            (if (or (< width 0)
+                    (< height 0))
+                (error "Rectangle with negative size")
+                (cons width height)))
+          (define rect-width car)
+          (define rect-height cdr)]
+
+@examples[#:eval sicp-evaluator
+          (define rectangle (make-rect 4 8))
+          (rect-area rectangle)
+          (rect-perimeter rectangle)]
+
+Another implementation could be a pair of points,
+one representing the top-right corner, another the
+bottom left.
+
+Not only is this more expressive, in that it gives
+the rectangle a position, it can also be normalized
+at construction to always have positive width and
+height.
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (make-rect corner opposite)
+            (cond [(< (x-point opposite)
+                      (x-point corner))
+
+                   (make-rect (make-point (x-point opposite)
+                                          (y-point corner))
+                              (make-point (x-point corner)
+                                          (y-point opposite)))]
+
+                  [(< (y-point opposite)
+                      (y-point corner))
+
+                   (make-rect (make-point (x-point corner)
+                                          (y-point opposite))
+                              (make-point (x-point opposite)
+                                          (y-point corner)))]
+
+                  [else (cons corner opposite)]))
+
+          (define rect-start car)
+          (define rect-end cdr)
+
+          (define (rect-width rect)
+            (- (x-point (rect-end rect))
+               (x-point (rect-start rect))))
+
+          (define (rect-height rect)
+            (- (y-point (rect-end rect))
+               (y-point (rect-start rect))))]
+
+@examples[#:eval sicp-evaluator
+          (define rectangle (make-rect (make-point 2 3)
+                                       (make-point 6 11)))
+          (rect-area rectangle)
+          (rect-perimeter rectangle)]
