@@ -1038,3 +1038,40 @@ Then @${\phi} comes to:
           (test-nth-root 6 6)
           (test-nth-root 7 10)
           (test-nth-root 10 10)]
+
+@section{Exercise 1.46}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (iterative-improve good-enough?
+                                     improve)
+            (define (try guess)
+              (let ((next (improve guess)))
+                (if (good-enough? next guess)
+                    next
+                    (try next))))
+            try)
+
+          (define (diff a b)
+            (abs (- a b)))
+
+          (define (sqrt x)
+            ((iterative-improve (lambda (guess last)
+                                  (< (diff (square guess)
+                                           x)
+                                     0.000001))
+                                (lambda (guess)
+                                  (average guess
+                                           (/ x
+                                              guess)))) 1.0))
+
+          (define (fixed-point f
+                               first-guess)
+            ((iterative-improve (lambda (guess last)
+                                  (< (diff guess
+                                           last)
+                                     0.000001))
+                                f) first-guess))]
+
+@examples[#:eval sicp-evaluator
+          (sqrt 9)
+          (test-nth-root 10 10)]
