@@ -959,7 +959,10 @@ Then @${\phi} comes to:
             (lambda (x)
               (- x (/ (g x) ((deriv g) x)))))
           (define (newtons-method g guess)
-            (fixed-point (newton-transform g) guess))]
+            (fixed-point (newton-transform g) guess))
+
+          (define (average-damp f)
+            (lambda (x) (average x (f x))))]
 
 @examples[#:eval sicp-evaluator
           (newtons-method (cubic 1 2 3) 1)
@@ -1011,3 +1014,27 @@ Then @${\phi} comes to:
           ((smooth floor) 1)
 
           ((smooth-nth floor 10) 1)]
+
+@section{Exercise 1.45}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (nth-root n x)
+            (fixed-point ((repeated average-damp
+                                    (floor (/ n 2)))
+                          (lambda (y)
+                            (/ x
+                               (fast-exp y (dec n)))))
+                         1.0))]
+
+@examples[#:eval sicp-evaluator
+          (define (test-nth-root n x)
+            (nth-root n
+                      (fast-exp x n)))
+
+          (test-nth-root 2 2)
+          (test-nth-root 3 3)
+          (test-nth-root 4 5)
+          (test-nth-root 5 4)
+          (test-nth-root 6 6)
+          (test-nth-root 7 10)
+          (test-nth-root 10 10)]
