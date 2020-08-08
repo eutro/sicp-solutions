@@ -218,3 +218,59 @@ Prefixing with @tt{n-} so the world doesn't break...
 @examples[#:eval sicp-evaluator
           (n-car (n-cons 5 10))
           (n-cdr (n-cons 8 12))]
+
+@section{Exercise 2.6}
+
+The Church numeral @tt{n} takes a function, and returns another that
+repeats the original function @tt{n} times.
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define one
+            (lambda (f) f))
+
+          (define two
+            (lambda (f)
+              (lambda (x)
+                (f (f x)))))
+
+          (define (add a b)
+            (lambda (f)
+              (lambda (x)
+                ((a f) ((b f) x)))))]
+
+@examples[#:eval sicp-evaluator
+          (define (church->int church)
+            ((church inc) 0))
+
+          (church->int one)
+          (church->int two)
+
+          (church->int (add one
+                            two))
+
+          (church->int (add (add two
+                                 one)
+                            two))]
+
+@examples[#:eval sicp-evaluator #:label "And multiplication, for fun."
+          (define (multiply a b)
+            (lambda (f)
+              (a (b f))))]
+
+@examples[#:eval sicp-evaluator
+          (define zero
+            (lambda (f)
+              (lambda (x) x)))
+
+          (define three (add one two))
+          (define four (multiply two two))
+
+          (church->int (multiply three
+                                 two))
+
+          (church->int (add (multiply three
+                                      four)
+                            one))
+
+          (church->int (multiply zero
+                                 three))]
