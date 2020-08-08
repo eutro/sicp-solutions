@@ -274,3 +274,61 @@ repeats the original function @tt{n} times.
 
           (church->int (multiply zero
                                  three))]
+
+@section{Exercise 2.7}
+
+@examples[#:eval sicp-evaluator #:label "Copied..."
+          (define (add-interval x y)
+            (make-interval (+ (lower-bound x) (lower-bound y))
+                           (+ (upper-bound x) (upper-bound y))))
+
+          (define (mul-interval x y)
+            (let ((p1 (* (lower-bound x) (lower-bound y)))
+                  (p2 (* (lower-bound x) (upper-bound y)))
+                  (p3 (* (upper-bound x) (lower-bound y)))
+                  (p4 (* (upper-bound x) (upper-bound y))))
+              (make-interval (min p1 p2 p3 p4)
+                             (max p1 p2 p3 p4))))
+
+          (define (div-interval x y)
+            (mul-interval x
+                          (make-interval (/ 1.0 (upper-bound y))
+                                         (/ 1.0 (lower-bound y)))))
+
+          (define (make-interval a b) (cons a b))
+
+          (define (make-center-width c w)
+            (make-interval (- c w) (+ c w)))
+          (define (center i)
+            (/ (+ (lower-bound i) (upper-bound i)) 2))
+          (define (width i)
+            (/ (- (upper-bound i) (lower-bound i)) 2))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define upper-bound car)
+          (define lower-bound cdr)]
+
+@section{Exercise 2.8}
+
+The minimum value the subtraction could be is the
+difference of the respective lower and upper bounds
+and the maximum value it could be is the difference
+of the upper and lower bounds respectively:
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (sub-interval x y)
+            (make-interval (- (lower-bound x) (upper-bound y))
+                           (- (upper-bound x) (lower-bound y))))]
+
+@examples[#:eval sicp-evaluator
+          (define (print-interval interval)
+            (display (center interval))
+            (display "±")
+            (display (width interval))
+            (newline))
+
+          (define 15+-5 (make-center-width 15 5))
+          (define 2+-1 (make-center-width 2 1))
+
+          (print-interval (sub-interval 15+-5
+                                        2+-1))]
