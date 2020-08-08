@@ -187,3 +187,34 @@ height.
 
 @racketblock[(define (cdr z)
                (z (lambda (p q) q)))]
+
+@section{Exercise 2.5}
+
+Prefixing with @tt{n-} so the world doesn't break...
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (n-cons a b)
+            (* (expt 2 a)
+               (expt 3 b)))
+
+          (define (log-base base)
+            (let ([denom (log base)])
+              (lambda (x)
+                (/ (log x)
+                   denom))))
+
+          (define (pair-getter base other)
+            (let ([log-func (log-base base)])
+              (define (getter pair)
+                (if (= (remainder pair other) 0)
+                    (getter (/ pair other))
+                    (log-func pair)))
+              getter))
+
+          (define n-car (pair-getter 2 3))
+
+          (define n-cdr (pair-getter 3 2))]
+
+@examples[#:eval sicp-evaluator
+          (n-car (n-cons 5 10))
+          (n-cdr (n-cons 8 12))]
