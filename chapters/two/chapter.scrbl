@@ -332,3 +332,42 @@ of the upper and lower bounds respectively:
 
           (print-interval (sub-interval 15+-5
                                         2+-1))]
+
+@section{Exercise 2.9}
+
+For the addition and subtraction of any two intervals a and b,
+the resulting interval will simply have a width which is the
+sum of a and b's respective widths.
+
+Where
+@itemlist[@item{@${[x, y]} is the interval between @${x} and @${y}}
+          @item{@${C_a} is the center of the interval @${a}}
+          @item{@${W_a} is the width of the interval @${a}}
+          @item{@${U_a} is the upper bound of the interval @${a}}
+          @item{@${L_a} is the lower bound of the interval @${a}}]
+
+Addition can be written as such:
+@$${a + b = c}
+@$${[L_a, U_a] + [L_b, U_b] = [L_a + L_b, U_a + U_b]}
+@$${= [C_a - W_a, C_a + W_a] + [C_b - W_b, C_b + W_b]}
+@$${= [(C_a - W_a) + (C_b - W_b), (C_a + W_a) + (C_b + W_b)]}
+@$${= [(C_a + C_b) - (W_a + W_b), (C_a + C_b) + (W_a + W_b)] = c}
+
+Calculating its width:
+@$${W_c = {U_c - L_c \over 2}}
+@$${= {((C_a + C_b) + (W_a + W_b)) - ((C_a + C_b) - (W_a + W_b)) \over 2}}
+@$${= {2(W_a + W_b) \over 2}}
+@$${= W_a + W_b}
+
+Similarly for subtraction:
+@$${a - b = c}
+@$${[L_a, U_a] - [L_b, U_b] = [L_a - U_b, U_a - L_b]}
+@$${= [C_a - W_a, C_a + W_a] - [C_b - W_b, C_b + W_b]}
+@$${= [(C_a - W_a) - (C_b + W_b), (C_a + W_a) - (C_b - W_b)]}
+@$${= [(C_a - C_b) - (W_a + W_b), (C_a - C_b) + (W_a + W_b)] = c}
+
+Calculating its width:
+@$${W_c = {U_c - L_c \over 2}}
+@$${= {((C_a - C_b) + (W_a + W_b)) - ((C_a - C_b) - (W_a + W_b)) \over 2}}
+@$${= {2(W_a + W_b) \over 2}}
+@$${= W_a + W_b}
