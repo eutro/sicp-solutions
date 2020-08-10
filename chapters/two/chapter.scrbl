@@ -5,7 +5,8 @@
 @(define sicp-evaluator
    (parameterize ([sandbox-output 'string]
                   [sandbox-error-output 'string]
-                  [sandbox-memory-limit 50])
+                  [sandbox-memory-limit 50]
+                  [sandbox-propagate-exceptions #f])
      (make-evaluator 'sicp)))
 
 @title[#:style (with-html5 manual-doc-style)]{Chapter Two}
@@ -393,3 +394,18 @@ For multiplication and division, in the following examples,
 
 Thus, the resulting width of interval division or multiplication
 is dependent not solely on width.
+
+@section{Exercise 2.10}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (div-interval x y)
+            (if (and (<= (lower-bound y) 0)
+                     (>= (upper-bound y) 0))
+                (error "Interval division spanning zero")
+                (mul-interval x
+                              (make-interval (/ 1.0 (upper-bound y))
+                                             (/ 1.0 (lower-bound y))))))]
+
+@examples[#:eval sicp-evaluator
+          (div-interval (make-interval 1 1)
+                        (make-interval -1 1))]
