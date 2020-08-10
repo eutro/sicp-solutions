@@ -305,8 +305,8 @@ repeats the original function @tt{n} times.
             (/ (- (upper-bound i) (lower-bound i)) 2))]
 
 @examples[#:eval sicp-evaluator #:label #f
-          (define upper-bound car)
-          (define lower-bound cdr)]
+          (define lower-bound car)
+          (define upper-bound cdr)]
 
 @section{Exercise 2.8}
 
@@ -371,3 +371,25 @@ Calculating its width:
 @$${= {((C_a - C_b) + (W_a + W_b)) - ((C_a - C_b) - (W_a + W_b)) \over 2}}
 @$${= {2(W_a + W_b) \over 2}}
 @$${= W_a + W_b}
+
+For multiplication and division, in the following examples,
+@tt{int-a} and @tt{int-b} have the same width. When multiplied
+(or divided) by @tt{int-c}, the results have different widths.
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define int-a (make-center-width 3 1))
+          (define int-b (make-center-width 5 1))
+          (define int-c (make-interval 1 2))
+
+          (print-interval int-a)
+          (print-interval int-b)
+          (print-interval int-c)
+
+          (print-interval (mul-interval int-a int-c))
+          (print-interval (mul-interval int-b int-c))
+
+          (print-interval (div-interval int-a int-c))
+          (print-interval (div-interval int-b int-c))]
+
+Thus, the resulting width of interval division or multiplication
+is dependent not solely on width.
