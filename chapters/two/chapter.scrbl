@@ -398,9 +398,12 @@ is dependent not solely on width.
 @section{Exercise 2.10}
 
 @examples[#:eval sicp-evaluator #:label #f
+          (define (spans-zero? interval)
+            (and (<= (lower-bound y) 0)
+                 (>= (upper-bound y) 0)))
+
           (define (div-interval x y)
-            (if (and (<= (lower-bound y) 0)
-                     (>= (upper-bound y) 0))
+            (if (spans-zero? y)
                 (error "Interval division spanning zero")
                 (mul-interval x
                               (make-interval (/ 1.0 (upper-bound y))
@@ -409,3 +412,106 @@ is dependent not solely on width.
 @examples[#:eval sicp-evaluator
           (div-interval (make-interval 1 1)
                         (make-interval -1 1))]
+
+@section{Exercise 2.11}
+
+@examples[#:eval sicp-evaluator
+          (define (mul-intervals l-x u-x l-y u-y)
+            (let ([x (make-interval l-x u-x)]
+                  [y (make-interval l-y u-y)])
+              (let ([z (mul-interval x y)])
+                (display "[")
+                (display (lower-bound z))
+                (display " ")
+                (display (upper-bound z))
+                (display "]")
+                (newline))))
+
+          (mul-intervals 1 2
+                         3 4)
+
+          (mul-intervals  1 2
+                         -3 4)
+
+          (mul-intervals  1  2
+                         -4 -3)
+
+          (mul-intervals -1 2
+                          3 4)
+
+          (mul-intervals -1 2
+                         -3 4)
+
+          (mul-intervals -1  2
+                         -4 -3)
+
+          (mul-intervals -2 -1
+                          3  4)
+
+          (mul-intervals -2 -1
+                         -3  4)
+
+          (mul-intervals -2 -1
+                         -4 -3)]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (pos? n)
+            (>= n 0))
+
+          (define (mul-interval x y)
+            (let ([l- lower-bound]
+                  [u- upper-bound]
+                  [mi (lambda (a b c d)
+                        (make-interval (* (a x)
+                                          (b y))
+                                       (* (c x)
+                                          (d y))))])
+
+              (case (+ (if (pos? (l- x)) 8 0)
+                       (if (pos? (u- x)) 4 0)
+                       (if (pos? (l- y)) 2 0)
+                       (if (pos? (u- y)) 1 0))
+                [0  (mi u- u- l- l-)]
+                [1  (mi l- u- l- l-)]
+                [3  (mi l- u- u- l-)]
+                [4  (mi u- l- l- l-)]
+                [5  (make-interval (min (* (l- x)
+                                           (u- y))
+                                        (* (u- x)
+                                           (l- y)))
+                                   (max (* (u- x)
+                                           (u- y))
+                                        (* (l- x)
+                                           (l- y))))]
+                [7  (mi l- u- u- u-)]
+                [12 (mi u- l- l- u-)]
+                [13 (mi u- l- u- u-)]
+                [15 (mi l- l- u- u-)])))]
+
+@examples[#:eval sicp-evaluator
+          (mul-intervals 1 2
+                         3 4)
+
+          (mul-intervals  1 2
+                         -3 4)
+
+          (mul-intervals  1  2
+                         -4 -3)
+
+          (mul-intervals -1 2
+                          3 4)
+
+          (mul-intervals -1 2
+                         -3 4)
+
+          (mul-intervals -1  2
+                         -4 -3)
+
+          (mul-intervals -2 -1
+                          3  4)
+
+          (mul-intervals -2 -1
+                         -3  4)
+
+          (mul-intervals -2 -1
+                         -4 -3)]
