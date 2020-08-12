@@ -321,18 +321,34 @@ of the upper and lower bounds respectively:
             (make-interval (- (lower-bound x) (upper-bound y))
                            (- (upper-bound x) (lower-bound y))))]
 
-@examples[#:eval sicp-evaluator
-          (define (print-interval interval)
+@examples[#:eval sicp-evaluator #:label "Some interval printing..."
+          (define (print-int interval)
+            (display "[")
+            (display (lower-bound interval))
+            (display ",")
+            (display (upper-bound interval))
+            (display "]")
+            (newline))
+
+          (define (print-int-cw interval)
             (display (center interval))
             (display "±")
             (display (width interval))
             (newline))
 
+          (define (print-int-cpct interval)
+            (display (center interval))
+            (display "±")
+            (display (percent interval))
+            (display "%")
+            (newline))]
+
+@examples[#:eval sicp-evaluator
           (define 15+-5 (make-center-width 15 5))
           (define 2+-1 (make-center-width 2 1))
 
-          (print-interval (sub-interval 15+-5
-                                        2+-1))]
+          (print-int-cw (sub-interval 15+-5
+                                      2+-1))]
 
 @section{Exercise 2.9}
 
@@ -382,15 +398,15 @@ For multiplication and division, in the following examples,
           (define int-b (make-center-width 5 1))
           (define int-c (make-interval 1 2))
 
-          (print-interval int-a)
-          (print-interval int-b)
-          (print-interval int-c)
+          (print-int-cw int-a)
+          (print-int-cw int-b)
+          (print-int-cw int-c)
 
-          (print-interval (mul-interval int-a int-c))
-          (print-interval (mul-interval int-b int-c))
+          (print-int-cw (mul-interval int-a int-c))
+          (print-int-cw (mul-interval int-b int-c))
 
-          (print-interval (div-interval int-a int-c))
-          (print-interval (div-interval int-b int-c))]
+          (print-int-cw (div-interval int-a int-c))
+          (print-int-cw (div-interval int-b int-c))]
 
 Thus, the resulting width of interval division or multiplication
 is dependent not solely on width.
@@ -417,15 +433,8 @@ is dependent not solely on width.
 
 @examples[#:eval sicp-evaluator #:label "The previous implementation, to compare:"
           (define (mul-intervals l-x u-x l-y u-y)
-            (let ([x (make-interval l-x u-x)]
-                  [y (make-interval l-y u-y)])
-              (let ([z (mul-interval x y)])
-                (display "[")
-                (display (lower-bound z))
-                (display " ")
-                (display (upper-bound z))
-                (display "]")
-                (newline))))
+            (print-int (mul-interval (make-interval l-x u-x)
+                                     (make-interval l-y u-y))))
 
           (mul-intervals 1 2
                          3 4)
@@ -531,5 +540,5 @@ is dependent not solely on width.
                100))]
 
 @examples[#:eval sicp-evaluator
-          (percent (make-center-percent 1000 25))
-          (print-interval (make-center-percent 3000 5))]
+          (print-int-cpct (make-center-percent 1000 25))
+          (print-int-cw (make-center-percent 3000 5))]
