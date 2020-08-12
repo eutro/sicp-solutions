@@ -415,7 +415,7 @@ is dependent not solely on width.
 
 @section{Exercise 2.11}
 
-@examples[#:eval sicp-evaluator
+@examples[#:eval sicp-evaluator #:label "The previous implementation, to compare:"
           (define (mul-intervals l-x u-x l-y u-y)
             (let ([x (make-interval l-x u-x)]
                   [y (make-interval l-y u-y)])
@@ -515,3 +515,21 @@ is dependent not solely on width.
 
           (mul-intervals -2 -1
                          -4 -3)]
+
+@section{Exercise 2.12}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (make-center-percent c pct)
+            (make-center-width c
+                               (* (/ pct
+                                     100)
+                                  c)))
+
+          (define (percent interval)
+            (* (/ (width interval)
+                  (center interval))
+               100))]
+
+@examples[#:eval sicp-evaluator
+          (percent (make-center-percent 1000 25))
+          (print-interval (make-center-percent 3000 5))]
