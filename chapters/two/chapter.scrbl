@@ -399,8 +399,8 @@ is dependent not solely on width.
 
 @examples[#:eval sicp-evaluator #:label #f
           (define (spans-zero? interval)
-            (and (<= (lower-bound y) 0)
-                 (>= (upper-bound y) 0)))
+            (and (<= (lower-bound interval) 0)
+                 (>= (upper-bound interval) 0)))
 
           (define (div-interval x y)
             (if (spans-zero? y)
