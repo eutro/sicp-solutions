@@ -542,3 +542,44 @@ is dependent not solely on width.
 @examples[#:eval sicp-evaluator
           (print-int-cpct (make-center-percent 1000 25))
           (print-int-cw (make-center-percent 3000 5))]
+
+@section{Exercise 2.13}
+
+With all bounds positive, and with the definitions as in
+@secref{Exercise_2_9}, multiplication can be written as:
+@$${ab = c}
+@$${[L_a, U_a][L_b, U_b] =}
+@$${[L_aL_b, U_aU_b] = c}
+
+Where @${T_a = {W_a \over C_a}} (percentage tolerance divided by @${100}):
+
+@$${L_a = C_a(1 - T_a)}
+@$${U_a = C_a(1 + T_a)}
+
+Thus:
+
+@$${c = [C_aC_b(1 - T_a)(1 - T_b), C_aC_b(1 + T_a)(1 + T_b)]}
+
+The center:
+
+@$${C_c = {C_aC_b(1 - T_a)(1 - T_b) + C_aC_b(1 + T_a)(1 + T_b) \over 2}}
+@$${= {C_aC_b[(1 - T_a)(1 - T_b) + (1 + T_a)(1 + T_b)] \over 2}}
+@$${= {2C_aC_b(1 + T_aT_b) \over 2}}
+@$${= C_aC_b(1 + T_aT_b)}
+
+And the width:
+
+@$${W_c = {C_aC_b(1 + T_a)(1 + T_b) - C_aC_b(1 - T_a)(1 - T_b) \over 2}}
+@$${= {C_aC_b[(1 + T_a)(1 + T_b) - (1 - T_a)(1 - T_b)] \over 2}}
+@$${= {2C_aC_b(T_a + T_b) \over 2}}
+@$${= C_aC_b(T_a + T_b)}
+
+Finally:
+
+@$${T_c = {W_c \over C_c}}
+@$${= {C_aC_b(T_a + T_b) \over C_aC_b(1 + T_aT_b)}}
+@$${= {T_a + T_b \over 1 + T_aT_b}}
+
+Thus, with small percentage tolerance:
+
+@$${T_c \approx T_a + T_b}
