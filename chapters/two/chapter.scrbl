@@ -583,3 +583,49 @@ Finally:
 Thus, with small percentage tolerance:
 
 @$${T_c \approx T_a + T_b}
+
+@section{Exercise 2.14}
+
+@examples[#:eval sicp-evaluator #:label "Copying..."
+          (define (par1 r1 r2)
+            (div-interval (mul-interval r1 r2)
+                          (add-interval r1 r2)))
+          (define (par2 r1 r2)
+            (let ((one (make-interval 1 1)))
+              (div-interval one
+                            (add-interval (div-interval one r1)
+                                          (div-interval one r2)))))]
+
+@examples[#:eval sicp-evaluator
+          (define r_A (make-center-percent 240 8))
+          (define r_B (make-center-percent 960 10))
+
+          (print-int-cpct r_A)
+          (print-int-cpct r_B)
+
+          (print-int-cpct (par1 r_A r_B))
+          (print-int-cpct (par2 r_A r_B))]
+
+Clearly, the given examples demonstrate different results.
+
+@examples[#:eval sicp-evaluator #:label "Here are some more examples:"
+          (print-int-cpct (div-interval r_A r_A))
+
+          (print-int-cpct (mul-interval r_B
+                                        (div-interval r_A
+                                                      r_B)))
+
+          (print-int-cw (sub-interval r_A r_A))
+
+          (print-int-cpct (add-interval r_B
+                                        (sub-interval r_A
+                                                      r_B)))]
+
+The penultimate one isn't percent width, since percentage of zero makes no sense.
+
+Notably, with intervals @${a} and @${b},
+
+@$${{a \over a} \neq [1, 1]}
+@$${a - a \neq [0, 0]}
+@$${b{a \over b} \neq a}
+@$${a - b + b \neq a}
