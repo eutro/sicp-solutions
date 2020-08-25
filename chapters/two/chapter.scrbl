@@ -662,6 +662,17 @@ And to answer the question, I personally would be unable to do this.
 
 @section{Exercise 2.17}
 
+@examples[#:eval sicp-evaluator #:label "List printing:"
+          (define (print-list l)
+            (display "(")
+            (define (iter l)
+              (begin (display (car l))
+                     (if (null? (cdr l))
+                         (display ")")
+                         (begin (display " ")
+                                (iter (cdr l))))))
+            (iter l))]
+
 @examples[#:eval sicp-evaluator #:label #f
           (define (last-pair l)
             (if (null? (cdr l))
@@ -669,4 +680,20 @@ And to answer the question, I personally would be unable to do this.
                 (last-pair (cdr l))))]
 
 @examples[#:eval sicp-evaluator
-          (last-pair (list 1 2 3 4))]
+          (print-list (last-pair (list 23 72 149 34)))]
+
+@section{Exercise 2.18}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (reverse l)
+            (define (iter old-list
+                          new-list)
+              (if (null? old-list)
+                  new-list
+                  (iter (cdr old-list)
+                        (cons (car old-list)
+                              new-list))))
+            (iter l nil))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (reverse (list 1 4 9 16 25)))]
