@@ -629,3 +629,10 @@ Notably, with intervals @${a} and @${b},
 @$${a - a \neq [0, 0]}
 @$${b{a \over b} \neq a}
 @$${a - b + b \neq a}
+
+@section{Exercise 2.15}
+
+Each time an uncertain interval appears, it introduces some uncertainty. Uncertainty
+increases with each operation of two uncertain values. Thus, reducing the number
+of uncertain variables, by avoiding repetitions, reduces the uncertainty of the calculation
+overall.
