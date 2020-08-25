@@ -671,7 +671,14 @@ And to answer the question, I personally would be unable to do this.
                          (display ")")
                          (begin (display " ")
                                 (iter (cdr l))))))
-            (iter l))]
+            (if (null? l)
+                (display ")")
+                (iter l))
+            (newline))]
+
+@examples[#:eval sicp-evaluator
+          (print-list nil)
+          (print-list (list 1 2 3 4))]
 
 @examples[#:eval sicp-evaluator #:label #f
           (define (last-pair l)
