@@ -636,3 +636,26 @@ Each time an uncertain interval appears, it introduces some uncertainty. Uncerta
 increases with each operation of two uncertain values. Thus, reducing the number
 of uncertain variables, by avoiding repetitions, reduces the uncertainty of the calculation
 overall.
+
+@section{Exercise 2.16}
+
+As shown in @secref{Exercise_2_14}, otherwise algebraically equivalent expressions, such as
+
+@$${{a \over a} = 1}
+@$${a - a = 0}
+@$${b{a \over b} = a}
+@$${a - b + b = a}
+
+don't hold for intervals with this program.
+
+The program treats any two intervals as distinct. Thus, though an interval @${a} can only
+have a single value, and algebraic equivalences should hold, the package does not take this
+into account, and interprets any two occurences of the same variable as uncertain values
+in their own right.
+
+Devising a package without this shortcoming may be possible, by storing performed
+operations instead of calculating them on the spot, then operating on those in some way.
+However, a system like that would be significantly more complicated, and likely far less
+performant.
+
+And to answer the question, I personally would be unable to do this.
