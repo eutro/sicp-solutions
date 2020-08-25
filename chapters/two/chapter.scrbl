@@ -704,3 +704,34 @@ And to answer the question, I personally would be unable to do this.
 
 @examples[#:eval sicp-evaluator
           (print-list (reverse (list 1 4 9 16 25)))]
+
+@section{Exercise 2.19}
+
+@examples[#:eval sicp-evaluator #:label "Defining coin values..."
+          (define us-coins (list 50 25 10 5 1))
+          (define uk-coins (list 100 50 20 10 5 2 1 0.5))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (cc amount coin-values)
+            (cond ((= amount 0) 1)
+                  ((or (< amount 0) (no-more? coin-values)) 0)
+                  (else
+                   (+ (cc amount
+                          (except-first-denomination coin-values))
+                      (cc (- amount
+                             (first-denomination coin-values))
+                          coin-values)))))
+
+          (define first-denomination car)
+          (define except-first-denomination cdr)
+          (define no-more? null?)]
+
+@examples[#:eval sicp-evaluator
+          (cc 100 us-coins)
+          (cc 100 uk-coins)]
+
+The order of the coins does not matter, since all possible branches will be explored anyway.
+
+@examples[#:eval sicp-evaluator #:label #f
+          (cc 100 (reverse us-coins))
+          (cc 100 (list 25 10 1 5 50))]
