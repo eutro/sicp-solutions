@@ -659,3 +659,14 @@ However, a system like that would be significantly more complicated, and likely 
 performant.
 
 And to answer the question, I personally would be unable to do this.
+
+@section{Exercise 2.17}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (last-pair l)
+            (if (null? (cdr l))
+                l
+                (last-pair (cdr l))))]
+
+@examples[#:eval sicp-evaluator
+          (last-pair (list 1 2 3 4))]
