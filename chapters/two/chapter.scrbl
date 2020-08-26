@@ -1030,3 +1030,23 @@ is not a list at all.
 
 @examples[#:eval sicp-evaluator
           (print-list (square-tree test-tree))]
+
+@section{Exercise 2.31}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (tree-map proc tree)
+            (define (recur tree)
+              (reduce (lambda (a b)
+                        (append a (list b)))
+                      nil
+                      (map (lambda (node)
+                             (if (pair? node)
+                                 (recur node)
+                                 (proc node)))
+                           tree)))
+            (recur tree))
+
+          (define (square-tree tree) (tree-map square tree))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (square-tree test-tree))]
