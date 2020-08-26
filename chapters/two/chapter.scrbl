@@ -735,3 +735,26 @@ The order of the coins does not matter, since all possible branches will be expl
 @examples[#:eval sicp-evaluator #:label #f
           (cc 100 (reverse us-coins))
           (cc 100 (list 25 10 1 5 50))]
+
+@section{Exercise 2.20}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (filter accept? l)
+            (define (iter old-list new-list)
+              (if (null? old-list)
+                  new-list
+                  (iter (cdr old-list)
+                        (if (accept? (car old-list))
+                            (cons (car old-list) new-list)
+                            new-list))))
+            (reverse (iter l nil)))
+
+          (define (same-parity first . rest)
+            (filter (if (even? first)
+                        even?
+                        (lambda (x) (not (even? x))))
+                    (cons first rest)))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (same-parity 1 2 3 4 5 6 7))
+          (print-list (same-parity 2 3 4 5 6 7))]
