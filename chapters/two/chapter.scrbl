@@ -1111,3 +1111,16 @@ With the base case that:
           (print-list (map square (list 1 2 3 4 5)))
           (print-list (appended (list 1 2 3 4) (list 5 6 7 8)))
           (length-of (list 1 2 3 4 5 6 7 8))]
+
+@section{Exercise 2.34}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (horner-eval x coefficient-sequence)
+            (accumulate (lambda (this-coeff higher-terms)
+                          (+ (* higher-terms x)
+                             this-coeff))
+                        0
+                        coefficient-sequence))]
+
+@examples[#:eval sicp-evaluator
+          (horner-eval 2 (list 1 3 0 5 0 1))]
