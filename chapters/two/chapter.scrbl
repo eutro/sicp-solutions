@@ -825,3 +825,13 @@ is not a list at all.
 @examples[#:eval sicp-evaluator
           (for-each (lambda (x) (newline) (display x))
                     (list 57 321 88))]
+
+@section{Exercise 2.24}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (list 1 (list 2 (list 3 4)))]
+
+@image["chapters/two/asymptote-images/bf7f8a599ac84cc365ca6bddef1083f9"
+       #:suffixes (list ".svg"
+                        ".png"
+                        ".pdf")]
