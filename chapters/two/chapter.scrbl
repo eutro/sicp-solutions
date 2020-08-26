@@ -996,3 +996,37 @@ is not a list at all.
 @examples[#:eval sicp-evaluator
           (balanced? (balanced-mobile))
           (balanced? (unbalanced-mobile))]
+
+@section{Exercise 2.30}
+
+@examples[#:eval sicp-evaluator #:label "Directly:"
+          (define (square-tree tree)
+            (if (null? tree)
+                nil
+                (cons (let ([node (car tree)])
+                        (if (pair? node)
+                            (square-tree node)
+                            (square node)))
+                      (square-tree (cdr tree)))))]
+
+@examples[#:eval sicp-evaluator
+          (define test-tree
+            (list 1
+                  (list 2 (list 3 4) 5)
+                  (list 6 7)))
+
+          (print-list test-tree)
+          (print-list (square-tree test-tree))]
+
+@examples[#:eval sicp-evaluator #:label "In terms of map:"
+          (define (square-tree tree)
+            (reduce (lambda (a b) (append a (list b)))
+                    nil
+                    (map (lambda (node)
+                           (if (pair? node)
+                               (square-tree node)
+                               (square node)))
+                         tree)))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (square-tree test-tree))]
