@@ -859,3 +859,20 @@ is not a list at all.
           (print-list (append x y))
           (print-list (cons x y))
           (print-list (list x y))]
+
+@section{Exercise 2.27}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (deep-reverse l)
+            (map (lambda (el)
+                   (if (list? el)
+                       (deep-reverse el)
+                       el))
+                 (reverse l)))]
+
+@examples[#:eval sicp-evaluator
+          (define x (list (list 1 2) (list 3 4)))
+
+          (print-list x)
+          (print-list (reverse x))
+          (print-list (deep-reverse x))]
