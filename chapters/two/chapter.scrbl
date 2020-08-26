@@ -692,7 +692,7 @@ And to answer the question, I personally would be unable to do this.
 @section{Exercise 2.18}
 
 @examples[#:eval sicp-evaluator #:label #f
-          (define (reverse l)
+          (define (reversed l)
             (define (iter old-list
                           new-list)
               (if (null? old-list)
@@ -703,7 +703,7 @@ And to answer the question, I personally would be unable to do this.
             (iter l nil))]
 
 @examples[#:eval sicp-evaluator
-          (print-list (reverse (list 1 4 9 16 25)))]
+          (print-list (reversed (list 1 4 9 16 25)))]
 
 @section{Exercise 2.19}
 
@@ -761,13 +761,6 @@ The order of the coins does not matter, since all possible branches will be expl
 
 @section{Exercise 2.21}
 
-@examples[#:eval sicp-evaluator #:label "Copied:"
-          (define (map proc items)
-            (if (null? items)
-                nil
-                (cons (proc (car items))
-                      (map proc (cdr items)))))]
-
 @examples[#:eval sicp-evaluator #:label #f
           (define (square x) (* x x))
 
@@ -781,3 +774,40 @@ The order of the coins does not matter, since all possible branches will be expl
           (define (square-list items)
             (map square items))
           (print-list (square-list (list 1 2 3 4)))]
+
+@section{Exercise 2.22}
+
+@racketblock[
+  (define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons (square (car things))
+                    answer))))
+  (iter items nil))]
+
+Using @tt{cons}, one prepends a value to an existing list.
+
+Thus, iterating over a list, the elements of the original list are
+prepended sequentially to the new list, making the new list a reverse
+of the old one.
+
+@racketblock[
+  (define (square-list items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons answer
+                    (square (car things))))))
+  (iter items nil))]
+
+A list is a pair, whose first value is the first value of the list,
+and whose second value is the rest of the list.
+
+Here, Louis is making a pair whose first element is the rest of the
+new list, and the second element is the squared number.
+
+Thus, by switching the arguments of @tt{cons}, what Louis has created
+is not a list at all.
