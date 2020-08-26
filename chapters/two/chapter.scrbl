@@ -1141,3 +1141,19 @@ With the base case that:
 @examples[#:eval sicp-evaluator
           (print-list x)
           (count-leaves (list x x))]
+
+@section{Exercise 2.36}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (accumulate-n op init seqs)
+            (if (null? (car seqs))
+                nil
+                (cons (accumulate op init (map car seqs))
+                      (accumulate-n op init (map cdr seqs)))))]
+
+@examples[#:eval sicp-evaluator
+          (define s (list (list  1  2  3)
+                          (list  4  5  6)
+                          (list  7  8  9)
+                          (list 10 11 12)))
+          (print-list (accumulate-n + 0 s))]
