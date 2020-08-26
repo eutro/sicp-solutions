@@ -901,3 +901,98 @@ is not a list at all.
 @examples[#:eval sicp-evaluator
           (print-list (fringe x))
           (print-list (fringe (list x x)))]
+
+@section{Exercise 2.29}
+
+@examples[#:eval sicp-evaluator #:label "Copied:"
+          (define (make-mobile left right)
+            (list left right))
+
+          (define (make-branch length structure)
+            (list length structure))]
+
+@subsection{Exercise 2.29.a}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define left-branch car)
+          (define right-branch cadr)]
+
+@examples[#:eval sicp-evaluator
+          (define test-mobile
+            (make-mobile (make-branch 3 15)
+                         (make-branch 1 (make-mobile (make-branch 2 15)
+                                                     (make-branch 1 30)))))
+
+          (print-list (left-branch test-mobile))
+          (print-list (right-branch test-mobile))]
+
+@subsection{Exercise 2.29.b}
+
+@examples[#:eval sicp-evaluator #:label "More selectors:"
+          (define branch-length car)
+          (define branch-struct cadr)
+          (define mobile? pair?)]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (branch-weight branch)
+            (if (mobile? (branch-struct branch))
+                (total-weight (branch-struct branch))
+                (branch-struct branch)))
+
+          (define (total-weight mobile)
+            (+ (branch-weight (left-branch mobile))
+               (branch-weight (right-branch mobile))))]
+
+@examples[#:eval sicp-evaluator
+          (total-weight test-mobile)]
+
+@subsection{Exercise 2.29.c}
+
+@examples[#:eval sicp-evaluator #:label "This implementation is inefficient due to repeated recursive weight checks..."
+          (define (branch-torque branch)
+            (* (branch-length branch)
+               (branch-weight branch)))
+
+          (define (branch-balanced? branch)
+            (or (not (mobile? (branch-struct branch)))
+                (balanced? (branch-struct branch))))
+
+          (define (balanced? mobile)
+            (and (branch-balanced? (left-branch mobile))
+                 (branch-balanced? (right-branch mobile))
+                 (= (branch-torque (left-branch mobile))
+                    (branch-torque (right-branch mobile)))))]
+
+@examples[#:eval sicp-evaluator
+          (balanced? test-mobile)
+          (define (balanced-mobile)
+            (make-mobile (make-branch 1 (make-mobile (make-branch 4 8)
+                                                              (make-branch 2 16)))
+                                  (make-branch 2 (make-mobile (make-branch 1 (make-mobile (make-branch 1 6)
+                                                                                          (make-branch 3 2)))
+                                                              (make-branch 2 4)))))
+          (balanced? (balanced-mobile))
+
+          (define (unbalanced-mobile)
+            (make-mobile (make-branch 1 (make-mobile (make-branch 2 8)
+                                                     (make-branch 4 16)))
+                         (make-branch 2 (make-mobile (make-branch 1 (make-mobile (make-branch 1 6)
+                                                                                 (make-branch 3 2)))
+                                                     (make-branch 2 4)))))
+          (balanced? (unbalanced-mobile))]
+
+@subsection{Exercise 2.29.d}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (make-mobile left right)
+            (cons left right))
+          (define (make-branch length structure)
+            (cons length structure))]
+
+@examples[#:eval sicp-evaluator #:label "Only a couple selectors have to be changed:"
+          (define right-branch cdr)
+          (define branch-struct cdr)]
+
+@examples[#:eval sicp-evaluator
+          (balanced? (balanced-mobile))
+          (balanced? (unbalanced-mobile))]
