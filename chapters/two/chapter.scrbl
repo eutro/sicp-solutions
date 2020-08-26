@@ -811,3 +811,17 @@ new list, and the second element is the squared number.
 
 Thus, by switching the arguments of @tt{cons}, what Louis has created
 is not a list at all.
+
+@section{Exercise 2.23}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (for-each proc l)
+            (if (null? l)
+                true
+                (begin (proc (car l))
+                       (for-each proc
+                                 (cdr l)))))]
+
+@examples[#:eval sicp-evaluator
+          (for-each (lambda (x) (newline) (display x))
+                    (list 57 321 88))]
