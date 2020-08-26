@@ -758,3 +758,26 @@ The order of the coins does not matter, since all possible branches will be expl
 @examples[#:eval sicp-evaluator
           (print-list (same-parity 1 2 3 4 5 6 7))
           (print-list (same-parity 2 3 4 5 6 7))]
+
+@section{Exercise 2.21}
+
+@examples[#:eval sicp-evaluator #:label "Copied:"
+          (define (map proc items)
+            (if (null? items)
+                nil
+                (cons (proc (car items))
+                      (map proc (cdr items)))))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (square x) (* x x))
+
+          (define (square-list items)
+            (if (null? items)
+                nil
+                (cons (square (car items))
+                      (square-list (cdr items)))))
+          (print-list (square-list (list 1 2 3 4)))
+
+          (define (square-list items)
+            (map square items))
+          (print-list (square-list (list 1 2 3 4)))]
