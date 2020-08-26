@@ -1050,3 +1050,35 @@ is not a list at all.
 
 @examples[#:eval sicp-evaluator
           (print-list (square-tree test-tree))]
+
+@section{Exercise 2.32}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (partial proc a)
+            (lambda (b) (proc a b)))
+
+          (define (subsets s)
+            (if (null? s)
+                (list nil)
+                (let ((rest (subsets (cdr s))))
+                  (append rest (map (partial cons (car s)) rest)))))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (subsets (list 1 2 3)))]
+
+The power set (set of all subsets) of a finite set @${S}, @${\mathcal{P}(S)}, can be defined recursively as:
+
+For all @${x} in @${S}
+and all @${T} that are a subset of @${S} without @${x},
+
+@$${\{\text{subsets of }S\} =}
+@$${\{t\text{ union }\{x\}\text{ such that }t\text{ is a subset of }T\}\text{ union }\{\text{subsets of }T\}}
+
+Or formally:
+
+@$${\forall x \in S \wedge T \subset S \wedge x \notin T,}
+@$${\mathcal{P}(S) = \{t \cup \{x\} : t \subseteq T\} \cup \mathcal{P}(T)}
+
+With the base case that:
+
+@$${\mathcal{P}(\emptyset) = \{\emptyset\}}
