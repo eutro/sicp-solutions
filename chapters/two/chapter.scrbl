@@ -666,15 +666,16 @@ And to answer the question, I personally would be unable to do this.
           (define (print-list l)
             (display "(")
             (define (iter l)
-              (begin (display (car l))
+              (begin (if (pair? (car l))
+                         (print-list (car l))
+                         (display (car l)))
                      (if (null? (cdr l))
                          (display ")")
                          (begin (display " ")
                                 (iter (cdr l))))))
             (if (null? l)
                 (display ")")
-                (iter l))
-            (newline))]
+                (iter l)))]
 
 @examples[#:eval sicp-evaluator
           (print-list nil)
@@ -829,7 +830,7 @@ is not a list at all.
 @section{Exercise 2.24}
 
 @examples[#:eval sicp-evaluator #:label #f
-          (list 1 (list 2 (list 3 4)))]
+          (print-list (list 1 (list 2 (list 3 4))))]
 
 @image["chapters/two/asymptote-images/bf7f8a599ac84cc365ca6bddef1083f9"
        #:suffixes (list ".svg"
@@ -848,3 +849,13 @@ is not a list at all.
           (car (cdaddr (list 1 3 (list 5 7) 9)))
           (caar (list (list 7)))
           (cadadr (cadadr (cadadr (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 7)))))))))]
+
+@section{Exercise 2.26}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define x (list 1 2 3))
+          (define y (list 4 5 6))
+
+          (print-list (append x y))
+          (print-list (cons x y))
+          (print-list (list x y))]
