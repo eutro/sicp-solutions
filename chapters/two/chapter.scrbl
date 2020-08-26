@@ -1082,3 +1082,32 @@ Or formally:
 With the base case that:
 
 @$${\mathcal{P}(\emptyset) = \{\emptyset\}}
+
+@section{Exercise 2.33}
+
+@examples[#:eval sicp-evaluator #:label "Redefining according to the book:"
+          (define (filter predicate sequence)
+            (cond ((null? sequence) nil)
+                  ((predicate (car sequence))
+                   (cons (car sequence)
+                         (filter predicate (cdr sequence))))
+                  (else (filter predicate (cdr sequence)))))
+
+          (define (accumulate op initial sequence)
+            (if (null? sequence)
+                initial
+                (op (car sequence)
+                    (accumulate op initial (cdr sequence)))))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (map p sequence)
+            (accumulate (lambda (x y) (cons (p x) y)) nil sequence))
+          (define (appended seq1 seq2)
+            (accumulate cons seq2 seq1))
+          (define (length-of sequence)
+            (accumulate (lambda (x y) (inc y)) 0 sequence))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (map square (list 1 2 3 4 5)))
+          (print-list (appended (list 1 2 3 4) (list 5 6 7 8)))
+          (length-of (list 1 2 3 4 5 6 7 8))]
