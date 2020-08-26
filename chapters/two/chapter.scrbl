@@ -876,3 +876,28 @@ is not a list at all.
           (print-list x)
           (print-list (reverse x))
           (print-list (deep-reverse x))]
+
+@section{Exercise 2.28}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (reduce reducer
+                          base
+                          l)
+            (define (iter result remaining)
+              (if (null? remaining)
+                  result
+                  (iter (reducer result
+                                 (car remaining))
+                        (cdr remaining))))
+            (iter base l))
+
+          (define (fringe l)
+            (reduce (lambda (result
+                             el)
+                      (if (list? el)
+                          (append result (fringe el))
+                          (append result (list el)))) nil l))]
+
+@examples[#:eval sicp-evaluator
+          (print-list (fringe x))
+          (print-list (fringe (list x x)))]
