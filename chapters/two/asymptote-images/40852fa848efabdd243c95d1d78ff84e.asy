@@ -1,0 +1,13 @@
+import drawtree;
+size(4cm, 0);
+TreeNode node_1t_2t_3t4___ = makeNode("(1 (2 (3 4)))");
+TreeNode node1 = makeNode(node_1t_2t_3t4___, "1");
+TreeNode node__2t_3t4___ = makeNode(node_1t_2t_3t4___, "((2 (3 4)))");
+TreeNode node_2t_3t4__ = makeNode(node__2t_3t4___, "(2 (3 4))");
+TreeNode node2 = makeNode(node_2t_3t4__, "2");
+TreeNode node__3t4__ = makeNode(node_2t_3t4__, "((3 4))");
+TreeNode node_3t4_ = makeNode(node__3t4__, "(3 4)");
+TreeNode node3 = makeNode(node_3t4_, "3");
+TreeNode node_4_ = makeNode(node_3t4_, "(4)");
+TreeNode node4 = makeNode(node_4_, "4");
+draw(node_1t_2t_3t4___, (0,0));

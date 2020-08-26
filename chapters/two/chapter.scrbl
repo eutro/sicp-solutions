@@ -835,3 +835,9 @@ is not a list at all.
        #:suffixes (list ".svg"
                         ".png"
                         ".pdf")]
+
+@image["chapters/two/asymptote-images/40852fa848efabdd243c95d1d78ff84e"
+       #:scale 2
+       #:suffixes (list ".svg"
+                        ".png"
+                        ".pdf")]

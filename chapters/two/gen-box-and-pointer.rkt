@@ -98,6 +98,4 @@
                            (draw-at 0 0
                                     (list 1 (list 2 (list 3 4)))))))
 
-(define tree (list 1 (list 2 (list 3 4))))
-
 (asymptote (asymptote-script))
