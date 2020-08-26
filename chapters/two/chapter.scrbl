@@ -1124,3 +1124,20 @@ With the base case that:
 
 @examples[#:eval sicp-evaluator
           (horner-eval 2 (list 1 3 0 5 0 1))]
+
+@section{Exercise 2.35}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (count-leaves t)
+            (accumulate (lambda (node-count total)
+                          (+ node-count total))
+                        0
+                        (map (lambda (node)
+                               (if (pair? node)
+                                   (count-leaves node)
+                                   1))
+                             t)))]
+
+@examples[#:eval sicp-evaluator
+          (print-list x)
+          (count-leaves (list x x))]
