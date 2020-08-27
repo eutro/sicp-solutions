@@ -666,7 +666,7 @@ And to answer the question, I personally would be unable to do this.
           (define (print-list l)
             (display "(")
             (define (iter l)
-              (begin (if (pair? (car l))
+              (begin (if (list? (car l))
                          (print-list (car l))
                          (display (car l)))
                      (if (null? (cdr l))
@@ -1271,6 +1271,61 @@ value for any sequence if @tt{op} is commutative.
           (define (reverse-b sequence)
             (fold-left (lambda (x y) (cons y x)) nil sequence))]
 
-@examples[#:eval sicp-evaluator #:label #f
+@examples[#:eval sicp-evaluator
           (print-list (reverse-a (list 1 2 3 4 5 6)))
           (print-list (reverse-b (list 1 2 3 4 5 6)))]
+
+@section{Exercise 2.40}
+
+@examples[#:eval sicp-evaluator #:hidden #t
+          (define (miller-rabin n times)
+            (define n-1 (dec n))
+            (define (do-test a)
+              (= 1 (expmod a n-1 n)))
+            (define (expmod base exp m)
+              (define (mulmod x y)
+                (define rem (remainder (* x y) m))
+                (if (and (= x y)
+                         (= rem 1)
+                         (not (= x 1))
+                         (not (= x (dec m))))
+                    0
+                    rem))
+              (hyperop base exp mulmod 1))
+            (define (loop i)
+              (cond ((= i 0) #t)
+                    ((do-test (inc (random (dec n)))) (loop (dec i)))
+                    (else #f)))
+            (loop times))
+          (define (prime? n)
+            (miller-rabin n 20))]
+
+@examples[#:eval sicp-evaluator #:label "Copied:"
+          (define (enumerate-interval low high)
+            (if (> low high)
+                nil
+                (cons low (enumerate-interval (inc low) high))))
+          (define (prime-sum? pair)
+            (prime? (+ (car pair) (cadr pair))))
+          (define (make-pair-sum pair)
+            (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (unique-pairs n)
+            (if (<= n 1)
+                nil
+                (append (unique-pairs (dec n))
+                        (map (partial list n)
+                             (enumerate-interval 1 (dec n))))))]
+
+@examples[#:eval sicp-evaluator
+          (print-matrix (unique-pairs 6))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (prime-sum-pairs n)
+            (map make-pair-sum
+                 (filter prime-sum?
+                         (unique-pairs 6))))]
+
+@examples[#:eval sicp-evaluator
+          (print-matrix (prime-sum-pairs 6))]
