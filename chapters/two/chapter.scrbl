@@ -1262,3 +1262,15 @@ With the base case that:
 
 @tt{fold-left} and @tt{fold-right} will always produce the same
 value for any sequence if @tt{op} is commutative.
+
+@section{Exercise 2.39}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (reverse-a sequence)
+            (fold-right (lambda (x y) (append y (list x))) nil sequence))
+          (define (reverse-b sequence)
+            (fold-left (lambda (x y) (cons y x)) nil sequence))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (print-list (reverse-a (list 1 2 3 4 5 6)))
+          (print-list (reverse-b (list 1 2 3 4 5 6)))]
