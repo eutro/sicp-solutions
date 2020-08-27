@@ -1329,3 +1329,23 @@ value for any sequence if @tt{op} is commutative.
 
 @examples[#:eval sicp-evaluator
           (print-matrix (prime-sum-pairs 6))]
+
+@section{Exercise 2.41}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (specific-sum-triples n s)
+            (filter (sums-to? s)
+                    (unique-triples n)))
+          (define (unique-triples n)
+            (if (<= n 2)
+                nil
+                (append (unique-triples (dec n))
+                        (map (partial cons n)
+                             (unique-pairs (dec n))))))
+          (define (sums-to? n)
+            (lambda (seq)
+              (= (apply + seq) n)))]
+
+@examples[#:eval sicp-evaluator
+          (print-matrix (unique-triples 6))
+          (print-matrix (specific-sum-triples 6 11))]
