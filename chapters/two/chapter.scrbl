@@ -1054,8 +1054,9 @@ is not a list at all.
 @section{Exercise 2.32}
 
 @examples[#:eval sicp-evaluator #:label #f
-          (define (partial proc a)
-            (lambda (b) (proc a b)))
+          (define (partial proc . partial-args)
+            (lambda args
+              (apply proc (append partial-args args))))
 
           (define (subsets s)
             (if (null? s)
@@ -1100,7 +1101,7 @@ With the base case that:
                     (accumulate op initial (cdr sequence)))))]
 
 @examples[#:eval sicp-evaluator #:label #f
-          (define (map p sequence)
+          (define (mapped p sequence)
             (accumulate (lambda (x y) (cons (p x) y)) nil sequence))
           (define (appended seq1 seq2)
             (accumulate cons seq2 seq1))
@@ -1108,7 +1109,7 @@ With the base case that:
             (accumulate (lambda (x y) (inc y)) 0 sequence))]
 
 @examples[#:eval sicp-evaluator
-          (print-list (map square (list 1 2 3 4 5)))
+          (print-list (mapped square (list 1 2 3 4 5)))
           (print-list (appended (list 1 2 3 4) (list 5 6 7 8)))
           (length-of (list 1 2 3 4 5 6 7 8))]
 
@@ -1157,3 +1158,92 @@ With the base case that:
                           (list  7  8  9)
                           (list 10 11 12)))
           (print-list (accumulate-n + 0 s))]
+
+@section{Exercise 2.37}
+
+@examples[#:eval sicp-evaluator #:label "Copied:"
+          (define (dot-product v w)
+            (accumulate + 0 (map * v w)))]
+
+@examples[#:eval sicp-evaluator #:hidden #t
+          (define (hyperop base exponent op identity)
+            (define (hyperop-iter state base exponent)
+              (cond ((= exponent 0) state)
+                    ((even? exponent) (hyperop-iter state
+                                                    (op base base)
+                                                    (/ exponent 2)))
+                    (else (hyperop-iter (op state base)
+                                        base
+                                        (dec exponent)))))
+            (define (even? n)
+              (= (remainder n 2) 0))
+            (hyperop-iter identity base exponent))
+          (define (compose f g)
+            (lambda (x)
+              (f (g x))))
+          (define (repeated f times)
+            (hyperop f times compose (lambda (x) x)))]
+
+@examples[#:eval sicp-evaluator #:label "Matrix utils:"
+          (define (padded-num num count char)
+            (string-append (make-string (- count (num-length num))
+                                        char)
+                           (number->string num)))
+          (define (num-length number)
+            (string-length (number->string number)))
+
+          (define (print-matrix mat)
+            (define el-len
+              (apply max
+                     (map (lambda (line)
+                            (apply max
+                                   (map num-length
+                                        line)))
+                          mat)))
+            (for-each (lambda (line)
+                        (for-each (lambda (el)
+                                    (display (padded-num el el-len #\space))
+                                    (display " "))
+                                  line)
+                        (newline))
+                      mat))
+
+          (define (identity-matrix size)
+            (if (= 0 size) nil
+                (cons (cons 1 ((repeated (partial cons 0)
+                                         (dec size)) nil))
+                      (map (lambda (line)
+                             (cons 0 line))
+                           (identity-matrix (dec size))))))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define (matrix-*-vector m v)
+            (map (partial dot-product v) m))
+          (define (transpose mat)
+            (accumulate-n cons nil mat))
+          (define (matrix-*-matrix m n)
+            (let ((cols (transpose n)))
+              (map (partial matrix-*-vector cols) m)))]
+
+@examples[#:eval sicp-evaluator
+          (define test-matrix
+            (list (list 1 2 3 4)
+                  (list 4 5 6 6)
+                  (list 6 7 8 9)))
+          (print-matrix test-matrix)
+          (print-matrix (identity-matrix 4))
+
+          (print-list (matrix-*-vector (list (list 3 0 1)
+                                             (list 0 8 0)
+                                             (list 1 2 3))
+                                       (list 3 5 7)))
+
+          (print-matrix (transpose test-matrix))
+
+          (print-matrix (matrix-*-matrix test-matrix
+                                         (identity-matrix 4)))
+
+          (print-matrix (matrix-*-matrix test-matrix
+                                         (transpose test-matrix)))
+          (print-matrix (matrix-*-matrix (transpose test-matrix)
+                                         test-matrix))]
