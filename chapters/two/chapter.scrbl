@@ -1247,3 +1247,18 @@ With the base case that:
                                          (transpose test-matrix)))
           (print-matrix (matrix-*-matrix (transpose test-matrix)
                                          test-matrix))]
+
+@section{Exercise 2.38}
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define fold-right accumulate)
+          (define fold-left reduce)]
+
+@examples[#:eval sicp-evaluator #:label "Just evaluate them..."
+          (fold-right / 1 (list 1 2 3))
+          (fold-left / 1 (list 1 2 3))
+          (print-list (fold-right list nil (list 1 2 3)))
+          (print-list (fold-left list nil (list 1 2 3)))]
+
+@tt{fold-left} and @tt{fold-right} will always produce the same
+value for any sequence if @tt{op} is commutative.
