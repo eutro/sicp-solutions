@@ -1478,9 +1478,12 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
 @examples[#:eval img-eval #:hidden
           ;; Have painters be Racket images, for now, and rewrite the implementation later when it's necessary.
           (require 2htdp/image
-                   lang/posn)
-          (define wave (bitmap/file "chapters/two/painter-images/wave.gif"))
-          (define rogers (bitmap/file "chapters/two/painter-images/rogers.gif"))
+                   lang/posn
+                   racket/math)
+          (define wave-image (bitmap/file "chapters/two/painter-images/wave.gif"))
+          (define rogers-image (bitmap/file "chapters/two/painter-images/rogers.gif"))
+          (define wave wave-image)
+          (define rogers rogers-image)
           (define beside0 beside)
           (define (beside left right)
             (beside0 (scale/xy 0.5 1 left)
@@ -1633,14 +1636,14 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
 @section{Exercise 2.49}
 
 @examples[#:eval img-eval #:hidden
-          (define output-image empty-image)
+          (define canvas empty-image)
           (define (drawing drawer)
-            (begin (set! output-image empty-image)
+            (begin (set! canvas empty-image)
                    (drawer)
-                   output-image))
+                   canvas))
           (define (draw-line from to)
-            (set! output-image
-                  (add-line output-image
+            (set! canvas
+                  (add-line canvas
                             (xcor-vect from)
                             (ycor-vect from)
                             (xcor-vect to)
@@ -1734,3 +1737,25 @@ a blank canvas, which is then returned.
                                               0.15 0.6
                                               0.0  0.35))))
           (drawing (partial wave test-frame))]
+
+@section{Exercise 2.50}
+
+@examples[#:eval img-eval #:label "Copied:"
+          (define (transform-painter painter origin corner1 corner2)
+            (lambda (frame)
+              (let ((m (frame-coord-map frame)))
+                (let ((new-origin (m origin)))
+                  (painter
+                   (make-frame new-origin
+                               (sub-vect (m corner1) new-origin)
+                               (sub-vect (m corner2) new-origin)))))))]
+
+@examples[#:eval img-eval #:label #f
+          (define (flip-horiz painter)
+            (transform-painter painter
+                               (make-vect 1.0 0.0)
+                               (make-vect 0.0 0.0)
+                               (make-vect 1.0 1.0)))]
+
+@examples[#:eval img-eval
+          (drawing (partial (flip-horiz wave) test-frame))]
