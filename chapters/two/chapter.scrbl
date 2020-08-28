@@ -8,6 +8,7 @@
                   [sandbox-memory-limit 50]
                   [sandbox-propagate-exceptions #f])
      (make-evaluator 'sicp)))
+@(define img-eval (make-base-eval))
 
 @title[#:style (with-html5 manual-doc-style)]{Chapter Two}
 @(use-katex)
@@ -1466,3 +1467,51 @@ and thus @tt{queens}, grows exponentially.
 
 Therefore, Louis' program will take approximately @${n^n} times as long to compute
 @racket[(queens n)] compared to the other program.
+
+@section{Exercise 2.44}
+
+@examples[#:eval img-eval #:hidden
+          ;; Have painters be Racket images, for now, and rewrite the implementation later when it's necessary.
+          (require 2htdp/image
+                   lang/posn)
+          (define wave (bitmap/file "chapters/two/painter-images/wave.gif"))
+          (define rogers (bitmap/file "chapters/two/painter-images/rogers.gif"))
+          (define beside0 beside)
+          (define (beside left right)
+            (beside0 (scale/xy 0.5 1 left)
+                     (scale/xy 0.5 1 right)))
+          (define (below bottom top)
+            (above (scale/xy 1 0.5 top)
+                   (scale/xy 1 0.5 bottom)))
+          (define flip-vert flip-vertical)
+          (define flip-horix flip-horizontal)]
+
+@examples[#:eval img-eval #:label "Copied:"
+          (define (right-split painter n)
+            (if (= n 0)
+                painter
+                (let ((smaller (right-split painter (- n 1))))
+                  (beside painter (below smaller smaller)))))
+          (define (corner-split painter n)
+            (if (= n 0)
+                painter
+                (let ((up (up-split painter (- n 1)))
+                      (right (right-split painter (- n 1))))
+                  (let ((top-left (beside up up))
+                        (bottom-right (below right right))
+                        (corner (corner-split painter (- n 1))))
+                    (beside (below painter top-left)
+                            (below bottom-right corner))))))]
+
+@examples[#:eval img-eval #:label #f
+          (define (up-split painter n)
+            (if (= n 0)
+                painter
+                (let ((smaller (up-split painter (- n 1))))
+                  (below painter (beside smaller smaller)))))]
+
+@examples[#:eval img-eval
+          (up-split wave 4)
+          (up-split rogers 4)
+          (corner-split wave 4)
+          (corner-split rogers 4)]
