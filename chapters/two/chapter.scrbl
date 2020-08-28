@@ -1349,3 +1349,93 @@ value for any sequence if @tt{op} is commutative.
 @examples[#:eval sicp-evaluator
           (print-matrix (unique-triples 6))
           (print-matrix (specific-sum-triples 6 11))]
+
+@section{Exercise 2.42}
+
+@examples[#:eval sicp-evaluator #:label "Copied:"
+          (define (flatmap proc seq)
+            (accumulate append nil (map proc seq)))
+          (define (queens board-size)
+            (define (queen-cols k)
+              (if (= k 0)
+                  (list empty-board)
+                  (filter
+                   (lambda (positions) (safe? k positions))
+                   (flatmap
+                    (lambda (rest-of-queens)
+                      (map (lambda (new-row)
+                             (adjoin-position new-row k rest-of-queens))
+                           (enumerate-interval 1 board-size)))
+                    (queen-cols (- k 1))))))
+            (queen-cols board-size))]
+
+@examples[#:eval sicp-evaluator #:label #f
+          (define empty-board nil)
+
+          (define (adjoin-position row col rest)
+            (cons (list row col) rest))
+
+          (define row-of car)
+          (define col-of cadr)
+
+          (define (safe? k queens)
+            (null? (filter (let ([this-queen (car queens)])
+                             (lambda (other-queen)
+                               (or (= (row-of this-queen)          ;; row
+                                      (row-of other-queen))
+
+                                   (= (col-of this-queen)          ;; col
+                                      (col-of other-queen))
+
+                                   (= (- (row-of this-queen)
+                                         (col-of this-queen))
+                                      (- (row-of other-queen)
+                                         (col-of other-queen)))    ;; diagonal \
+
+                                   (= (+ (row-of this-queen)
+                                         (col-of this-queen))
+                                      (+ (row-of other-queen)
+                                         (col-of other-queen)))))) ;; diagonal /
+
+                           (cdr queens))))]
+
+@examples[#:eval sicp-evaluator #:label "Board drawing!"
+          (define range enumerate-interval)
+          (define (print-queens queens)
+            (let* ([size (length queens)]
+                   [line (string-append "  "
+                                        ((repeated (partial string-append "+---") size)
+                                         "+\n"))])
+              (define (pos-char row col)
+                (if (null? (filter (lambda (queen)
+                                     (and (= (car queen) row)
+                                          (= (cadr queen) col)))
+                                   queens))
+                    #\space
+                    #\Q))
+              (display "  ")
+              (for-each (lambda (col)
+                          (display "  ")
+                          (display col)
+                          (display " "))
+                        (range 1 size))
+              (newline)
+              (for-each (lambda (row)
+                          (display line)
+                          (display row)
+                          (display " ")
+                          (for-each (lambda (col)
+                                      (display "| ")
+                                      (display (pos-char row col))
+                                      (display " "))
+                                    (range 1 size))
+                          (display "|\n"))
+                        (range 1 size))
+              (display line)
+              (display " \n")))]
+
+@examples[#:eval sicp-evaluator
+          (length (queens 8))
+          (define six-queens (queens 6))
+          (length six-queens)
+          (for-each print-queens six-queens)]
