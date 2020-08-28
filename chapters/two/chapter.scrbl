@@ -1463,3 +1463,6 @@ is called.
 That is, @racket[(queen-cols (k - 1))] gets called @tt{board-size} times from
 @racket[(queen-cols k)], which means the time complexity of @tt{queen-cols},
 and thus @tt{queens}, grows exponentially.
+
+Therefore, Louis' program will take approximately @${n^n} times as long to compute
+@racket[(queens n)] compared to the other program.
