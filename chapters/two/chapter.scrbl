@@ -8,7 +8,12 @@
                   [sandbox-memory-limit 50]
                   [sandbox-propagate-exceptions #f])
      (make-evaluator 'sicp)))
-@(define img-eval (make-base-eval))
+@(define img-eval
+   (parameterize ([sandbox-output 'string]
+                  [sandbox-error-output 'string]
+                  [sandbox-memory-limit 50]
+                  [sandbox-propagate-exceptions #f])
+    (make-base-eval)))
 
 @title[#:style (with-html5 manual-doc-style)]{Chapter Two}
 @(use-katex)
@@ -1617,3 +1622,115 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
           (print-frame (make-frame (make-vect 0 0)
                                    (make-vect 1 0)
                                    (make-vect 0 1)))]
+
+@section{Exercise 2.48}
+
+@examples[#:eval img-eval #:label #f
+          (define make-segment cons)
+          (define start-segment car)
+          (define end-segment cdr)]
+
+@section{Exercise 2.49}
+
+@examples[#:eval img-eval #:hidden
+          (define output-image empty-image)
+          (define (drawing drawer)
+            (begin (set! output-image empty-image)
+                   (drawer)
+                   output-image))
+          (define (draw-line from to)
+            (set! output-image
+                  (add-line output-image
+                            (xcor-vect from)
+                            (ycor-vect from)
+                            (xcor-vect to)
+                            (ycor-vect to)
+                            "black")))
+          (define (partial proc . args0)
+            (lambda args
+              (apply proc (append args0 args))))]
+
+@examples[#:eval img-eval #:label "Copied:"
+          (define (frame-coord-map frame)
+            (lambda (v)
+              (add-vect
+               (origin-frame frame)
+               (add-vect (scale-vect (xcor-vect v)
+                                     (edge1-frame frame))
+                         (scale-vect (ycor-vect v)
+                                     (edge2-frame frame))))))
+          (define (segments->painter segment-list)
+            (lambda (frame)
+              (for-each
+               (lambda (segment)
+                 (draw-line
+                  ((frame-coord-map frame) (start-segment segment))
+                  ((frame-coord-map frame) (end-segment segment))))
+               segment-list)))]
+
+Where @tt{drawing} executes a 0 argument procedure,
+and any painters applied from that procedure paint onto
+a blank canvas, which is then returned.
+
+@examples[#:eval img-eval #:label #f
+          (define test-frame
+            (make-frame (make-vect 0 0)
+                        (make-vect 200 0)
+                        (make-vect 0 200)))
+
+          (define (lines x0 y0
+                         x1 y1
+                         . rest)
+            (cons (make-segment (make-vect x0 y0)
+                                (make-vect x1 y1))
+                  (if (null? rest)
+                      null
+                      (apply lines
+                             x1 y1
+                             rest))))
+
+          (drawing (partial
+                    (segments->painter (lines 0 0
+                                              0 1
+                                              1 1
+                                              1 0
+                                              0 0))
+                    test-frame))
+          (drawing (partial
+                    (segments->painter (append (lines 0 0
+                                                      1 1)
+                                               (lines 0 1
+                                                      1 0)))
+                    test-frame))
+          (drawing (partial
+                    (segments->painter (lines 0.0 0.5
+                                              0.5 1.0
+                                              1.0 0.5
+                                              0.5 0.0
+                                              0.0 0.5))
+                    test-frame))
+
+          (define wave
+            (segments->painter (append (lines 0.0  0.15
+                                              0.15 0.40
+                                              0.3  0.35
+                                              0.4  0.35
+                                              0.35 0.15
+                                              0.4  0.0)
+                                       (lines 0.6  0.0
+                                              0.65 0.15
+                                              0.6  0.35
+                                              0.75 0.35
+                                              1.0  0.65)
+                                       (lines 1.0  0.85
+                                              0.6  0.55
+                                              0.75 1.0)
+                                       (lines 0.6  1.0
+                                              0.5  0.7
+                                              0.4  1.0)
+                                       (lines 0.25 1.0
+                                              0.35 0.5
+                                              0.3  0.4
+                                              0.15 0.6
+                                              0.0  0.35))))
+          (drawing (partial wave test-frame))]
