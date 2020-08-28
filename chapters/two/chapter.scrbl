@@ -1439,3 +1439,27 @@ value for any sequence if @tt{op} is commutative.
           (define six-queens (queens 6))
           (length six-queens)
           (for-each print-queens six-queens)]
+
+@section{Exercise 2.43}
+
+@racketblock[
+  (flatmap
+   (lambda (new-row)
+     (map (lambda (rest-of-queens)
+            (adjoin-position new-row k rest-of-queens))
+          (queen-cols (- k 1))))
+   (enumerate-interval 1 board-size))]
+
+In doing this, @racket[queen-cols (- k 1)] is recalculated unnecessarily every time
+
+@racketblock[
+  (lambda (new-row)
+    (map (lambda (rest-of-queens)
+           (adjoin-position new-row k rest-of-queens))
+         (queen-cols (- k 1))))]
+
+is called.
+
+That is, @racket[(queen-cols (k - 1))] gets called @tt{board-size} times from
+@racket[(queen-cols k)], which means the time complexity of @tt{queen-cols},
+and thus @tt{queens}, grows exponentially.
