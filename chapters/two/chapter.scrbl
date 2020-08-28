@@ -1755,7 +1755,19 @@ a blank canvas, which is then returned.
             (transform-painter painter
                                (make-vect 1.0 0.0)
                                (make-vect 0.0 0.0)
-                               (make-vect 1.0 1.0)))]
+                               (make-vect 1.0 1.0)))
+          (define (rotate180 painter)
+            (transform-painter painter
+                               (make-vect 1.0 1.0)
+                               (make-vect 0.0 1.0)
+                               (make-vect 1.0 0.0)))
+          (define (rotate270 painter)
+            (transform-painter painter
+                               (make-vect 1.0 0.0)
+                               (make-vect 1.0 1.0)
+                               (make-vect 0.0 0.0)))]
 
 @examples[#:eval img-eval
-          (drawing (partial (flip-horiz wave) test-frame))]
+          (drawing (partial (flip-horiz wave) test-frame))
+          (drawing (partial (rotate180 wave) test-frame))
+          (drawing (partial (rotate270 wave) test-frame))]
