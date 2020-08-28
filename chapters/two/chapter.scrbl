@@ -1515,3 +1515,25 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
           (up-split rogers 4)
           (corner-split wave 4)
           (corner-split rogers 4)]
+
+@section{Exercise 2.45}
+
+@examples[#:eval img-eval #:label #f
+          (define (split final-combiner
+                         smaller-combiner)
+            (define (loop painter n)
+              (if (= n 0)
+                  painter
+                  (let ([smaller (loop painter (- n 1))])
+                    (final-combiner painter
+                                    (smaller-combiner smaller smaller)))))
+            loop)
+
+          (define right-split (split beside below))
+          (define up-split (split below beside))]
+
+@examples[#:eval img-eval
+          (up-split wave 4)
+          (up-split rogers 4)
+          (corner-split wave 4)
+          (corner-split rogers 4)]
