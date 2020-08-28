@@ -1563,29 +1563,35 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
             (make-vect (* (xcor-vect vect)
                           s)
                        (* (ycor-vect vect)
-                          s)))]
+                          s)))
+
+          (define (print-vect vect)
+            (display "[")
+            (display (xcor-vect vect))
+            (display " ")
+            (display (ycor-vect vect))
+            (display "]"))]
 
 @examples[#:eval img-eval
-          (make-vect 0 0)
-          (add-vect (make-vect 1 2)
-                    (make-vect 10 20))
-          (sub-vect (make-vect 10 20)
-                    (make-vect 1 2))
-          (scale-vect 10
-                      (make-vect 1 2))]
+          (print-vect (make-vect 0 0))
+          (print-vect (add-vect (make-vect 1 2)
+                                (make-vect 10 20)))
+          (print-vect (sub-vect (make-vect 10 20)
+                                (make-vect 1 2)))
+          (print-vect (scale-vect 10 (make-vect 1 2)))]
 
 @section{Exercise 2.47}
 
 @examples[#:eval img-eval #:label "Display a frame using the abstractions..."
           (define (print-frame frame)
             (display "Origin: ")
-            (display (origin-frame frame))
+            (print-vect (origin-frame frame))
             (newline)
             (display "Edge 1: ")
-            (display (edge1-frame frame))
+            (print-vect (edge1-frame frame))
             (newline)
             (display "Edge 2: ")
-            (display (edge2-frame frame))
+            (print-vect (edge2-frame frame))
             (newline))]
 
 @examples[#:eval img-eval #:label "First implementation:"
