@@ -1537,3 +1537,39 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
           (up-split rogers 4)
           (corner-split wave 4)
           (corner-split rogers 4)]
+
+@section{Exercise 2.46}
+
+@examples[#:eval img-eval #:label #f
+          (define (make-vect x y)
+            (list x y))
+          (define xcor-vect car)
+          (define ycor-vect cadr)]
+
+@examples[#:eval img-eval #:label #f
+          (define (add-vect a b)
+            (make-vect (+ (xcor-vect a)
+                          (xcor-vect b))
+                       (+ (ycor-vect a)
+                          (ycor-vect b))))
+
+          (define (sub-vect a b)
+            (make-vect (- (xcor-vect a)
+                          (xcor-vect b))
+                       (- (ycor-vect a)
+                          (ycor-vect b))))
+
+          (define (scale-vect s vect)
+            (make-vect (* (xcor-vect vect)
+                          s)
+                       (* (ycor-vect vect)
+                          s)))]
+
+@examples[#:eval img-eval
+          (make-vect 0 0)
+          (add-vect (make-vect 1 2)
+                    (make-vect 10 20))
+          (sub-vect (make-vect 10 20)
+                    (make-vect 1 2))
+          (scale-vect 10
+                      (make-vect 1 2))]
