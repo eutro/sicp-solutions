@@ -1573,3 +1573,41 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
                     (make-vect 1 2))
           (scale-vect 10
                       (make-vect 1 2))]
+
+@section{Exercise 2.47}
+
+@examples[#:eval img-eval #:label "Display a frame using the abstractions..."
+          (define (print-frame frame)
+            (display "Origin: ")
+            (display (origin-frame frame))
+            (newline)
+            (display "Edge 1: ")
+            (display (edge1-frame frame))
+            (newline)
+            (display "Edge 2: ")
+            (display (edge2-frame frame))
+            (newline))]
+
+@examples[#:eval img-eval #:label "First implementation:"
+          (define (make-frame origin edge1 edge2)
+            (list origin edge1 edge2))
+          (define origin-frame car)
+          (define edge1-frame cadr)
+          (define edge2-frame caddr)]
+
+@examples[#:eval img-eval
+          (print-frame (make-frame (make-vect 0 0)
+                                   (make-vect 1 0)
+                                   (make-vect 0 1)))]
+
+@examples[#:eval img-eval #:label "Second implementation:"
+          (define (make-frame origin edge1 edge2)
+            (cons origin (cons edge1 edge2)))
+          (define origin-frame car)
+          (define edge1-frame cadr)
+          (define edge2-frame cddr)]
+
+@examples[#:eval img-eval
+          (print-frame (make-frame (make-vect 0 0)
+                                   (make-vect 1 0)
+                                   (make-vect 0 1)))]
