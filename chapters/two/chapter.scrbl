@@ -1490,9 +1490,7 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
                      (scale/xy 0.5 1 right)))
           (define (below bottom top)
             (above (scale/xy 1 0.5 top)
-                   (scale/xy 1 0.5 bottom)))
-          (define flip-vert flip-vertical)
-          (define flip-horix flip-horizontal)]
+                   (scale/xy 1 0.5 bottom)))]
 
 @examples[#:eval img-eval #:label "Copied:"
           (define (right-split painter n)
@@ -1749,6 +1747,18 @@ a blank canvas, which is then returned.
                    (make-frame new-origin
                                (sub-vect (m corner1) new-origin)
                                (sub-vect (m corner2) new-origin)))))))
+          (define (flip-vert painter)
+            (transform-painter painter
+                               (make-vect 0.0 1.0)   ; new origin
+                               (make-vect 1.0 1.0)   ; new end of edge1
+                               (make-vect 0.0 0.0))) ; new end of edge2
+
+          (define (rotate90 painter)
+            (transform-painter painter
+                               (make-vect 1.0 0.0)
+                               (make-vect 1.0 1.0)
+                               (make-vect 0.0 0.0)))
+
           (define (beside painter1 painter2)
             (let ((split-point (make-vect 0.5 0.0)))
               (let ((paint-left
@@ -1763,12 +1773,7 @@ a blank canvas, which is then returned.
                                         (make-vect 0.5 1.0))))
                 (lambda (frame)
                   (paint-left frame)
-                  (paint-right frame)))))
-          (define (rotate90 painter)
-            (transform-painter painter
-                               (make-vect 1.0 0.0)
-                               (make-vect 1.0 1.0)
-                               (make-vect 0.0 0.0)))]
+                  (paint-right frame)))))]
 
 @examples[#:eval img-eval #:label #f
           (define (flip-horiz painter)
@@ -1827,3 +1832,100 @@ In terms of @tt{rotation}s and @tt{below}:
           (drawing (partial (below wave
                                    (flip-horiz wave))
                             test-frame))]
+
+@section{Exercise 2.52}
+
+@examples[#:eval img-eval #:hidden
+          (define (identity thing) thing)
+
+          ;; rebind these
+          (define right-split (split beside below))
+          (define up-split (split below beside))]
+
+@examples[#:eval img-eval #:label "Copied:"
+          (define (square-of-four tl tr bl br)
+            (lambda (painter)
+              (let ((top (beside (tl painter) (tr painter)))
+                    (bottom (beside (bl painter) (br painter))))
+                (below bottom top))))
+
+          (define (square-limit painter n)
+            (let ((combine4 (square-of-four flip-horiz identity
+                                            rotate180 flip-vert)))
+              (combine4 (corner-split painter n))))]
+
+@examples[#:eval img-eval
+          (define larger-frame (make-frame (make-vect 0 0)
+                                           (make-vect 300 0)
+                                           (make-vect 0 300)))
+          (define (wave-limit)
+            (drawing (partial (square-limit wave 4) larger-frame)))
+          (wave-limit)]
+
+@subsection{Exercise 2.52.a}
+
+@examples[#:eval img-eval #:label #f
+          (define wave0 wave)
+          (define wave (lambda (frame)
+                         (smile frame)
+                         (wave0 frame)))
+          (define smile
+            (segments->painter (append (lines 0.4  0.8
+                                              0.45 0.75
+                                              0.55 0.75
+                                              0.6  0.8)
+
+                                       (lines 0.39 0.9
+                                              0.4  0.91
+                                              0.41 0.9
+                                              0.4  0.89
+                                              0.39 0.9)
+                                       (lines 0.59 0.9
+                                              0.6  0.91
+                                              0.61 0.9
+                                              0.6  0.89
+                                              0.59 0.9))))]
+
+@examples[#:eval img-eval
+          (wave-limit)]
+
+@examples[#:eval img-eval #:label #f
+          (define wave wave0)]
+
+@subsection{Exercise 2.52.b}
+
+@examples[#:eval img-eval #:label #f
+          (define corner-split0 corner-split)
+
+          (define (corner-split painter n)
+            (if (= n 0)
+                painter
+                (let ((up (up-split painter (- n 1)))
+                      (right (right-split painter (- n 1))))
+                  (let ((top-left up)
+                        (bottom-right right)
+                        (corner (corner-split painter (- n 1))))
+                    (beside (below painter top-left)
+                            (below bottom-right corner))))))]
+
+@examples[#:eval img-eval
+          (wave-limit)]
+
+@examples[#:eval img-eval #:label #f
+          (define corner-split corner-split0)]
+
+@subsection{Exercise 2.52.c}
+
+@examples[#:eval img-eval #:label #f
+          (define square-limit0 square-limit)
+
+          (define (square-limit painter n)
+            (let ((combine4 (square-of-four flip-vert rotate180
+                                            identity flip-horiz)))
+              (combine4 (corner-split painter n))))]
+
+@examples[#:eval img-eval
+          (wave-limit)]
+
+@examples[#:eval img-eval #:label #f
+          (define square-limit square-limit0)]
