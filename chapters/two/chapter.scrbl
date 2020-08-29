@@ -1640,7 +1640,7 @@ Therefore, Louis' program will take approximately @${n^n} times as long to compu
           (define (drawing drawer)
             (begin (set! canvas empty-image)
                    (drawer)
-                   canvas))
+                   (flip-vertical canvas))) ;; make (0, 0) be bottom-left
           (define (draw-line from to)
             (set! canvas
                   (add-line canvas
@@ -1714,28 +1714,28 @@ a blank canvas, which is then returned.
                     test-frame))
 
           (define wave
-            (segments->painter (append (lines 0.0  0.15
-                                              0.15 0.40
-                                              0.3  0.35
-                                              0.4  0.35
-                                              0.35 0.15
-                                              0.4  0.0)
-                                       (lines 0.6  0.0
-                                              0.65 0.15
-                                              0.6  0.35
-                                              0.75 0.35
-                                              1.0  0.65)
-                                       (lines 1.0  0.85
-                                              0.6  0.55
-                                              0.75 1.0)
-                                       (lines 0.6  1.0
-                                              0.5  0.7
+            (segments->painter (append (lines 0.0  0.85
+                                              0.15 0.60
+                                              0.3  0.65
+                                              0.4  0.65
+                                              0.35 0.85
                                               0.4  1.0)
-                                       (lines 0.25 1.0
+                                       (lines 0.6  1.0
+                                              0.65 0.85
+                                              0.6  0.65
+                                              0.75 0.65
+                                              1.0  0.35)
+                                       (lines 1.0  0.15
+                                              0.6  0.45
+                                              0.75 0.0)
+                                       (lines 0.6  0.0
+                                              0.5  0.3
+                                              0.4  0.0)
+                                       (lines 0.25 0.0
                                               0.35 0.5
-                                              0.3  0.4
-                                              0.15 0.6
-                                              0.0  0.35))))
+                                              0.3  0.6
+                                              0.15 0.4
+                                              0.0  0.65))))
           (drawing (partial wave test-frame))]
 
 @section{Exercise 2.50}
@@ -1766,9 +1766,9 @@ a blank canvas, which is then returned.
                   (paint-right frame)))))
           (define (rotate90 painter)
             (transform-painter painter
-                               (make-vect 0.0 1.0)
-                               (make-vect 0.0 0.0)
-                               (make-vect 1.0 1.0)))]
+                               (make-vect 1.0 0.0)
+                               (make-vect 1.0 1.0)
+                               (make-vect 0.0 0.0)))]
 
 @examples[#:eval img-eval #:label #f
           (define (flip-horiz painter)
@@ -1783,9 +1783,9 @@ a blank canvas, which is then returned.
                                (make-vect 1.0 0.0)))
           (define (rotate270 painter)
             (transform-painter painter
-                               (make-vect 1.0 0.0)
-                               (make-vect 1.0 1.0)
-                               (make-vect 0.0 0.0)))]
+                               (make-vect 0.0 1.0)
+                               (make-vect 0.0 0.0)
+                               (make-vect 1.0 1.0)))]
 
 @examples[#:eval img-eval
           (drawing (partial (flip-horiz wave) test-frame))
