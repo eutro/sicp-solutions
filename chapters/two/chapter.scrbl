@@ -1820,8 +1820,8 @@ In terms of @tt{rotation}s and @tt{below}:
 
 @examples[#:eval img-eval #:label #f
           (define (below painter1 painter2)
-            (rotate270 (beside (rotate90 painter1)
-                               (rotate90 painter2))))]
+            (rotate90 (beside (rotate270 painter1)
+                              (rotate270 painter2))))]
 
 @examples[#:eval img-eval
           (drawing (partial (below wave
