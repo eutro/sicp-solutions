@@ -1748,7 +1748,27 @@ a blank canvas, which is then returned.
                   (painter
                    (make-frame new-origin
                                (sub-vect (m corner1) new-origin)
-                               (sub-vect (m corner2) new-origin)))))))]
+                               (sub-vect (m corner2) new-origin)))))))
+          (define (beside painter1 painter2)
+            (let ((split-point (make-vect 0.5 0.0)))
+              (let ((paint-left
+                     (transform-painter painter1
+                                        (make-vect 0.0 0.0)
+                                        split-point
+                                        (make-vect 0.0 1.0)))
+                    (paint-right
+                     (transform-painter painter2
+                                        split-point
+                                        (make-vect 1.0 0.0)
+                                        (make-vect 0.5 1.0))))
+                (lambda (frame)
+                  (paint-left frame)
+                  (paint-right frame)))))
+          (define (rotate90 painter)
+            (transform-painter painter
+                               (make-vect 0.0 1.0)
+                               (make-vect 0.0 0.0)
+                               (make-vect 1.0 1.0)))]
 
 @examples[#:eval img-eval #:label #f
           (define (flip-horiz painter)
@@ -1771,3 +1791,39 @@ a blank canvas, which is then returned.
           (drawing (partial (flip-horiz wave) test-frame))
           (drawing (partial (rotate180 wave) test-frame))
           (drawing (partial (rotate270 wave) test-frame))]
+
+@section{Exercise 2.51}
+
+@examples[#:eval img-eval #:label "Analogous:"
+          (define (below painter1 painter2)
+            (let ((split-point (make-vect 0.0 0.5)))
+              (let ((paint-top
+                     (transform-painter painter1
+                                        (make-vect 0.0 0.0)
+                                        (make-vect 1.0 0.0)
+                                        split-point))
+                    (paint-bottom
+                     (transform-painter painter2
+                                        split-point
+                                        (make-vect 1.0 0.5)
+                                        (make-vect 0.0 1.0))))
+                (lambda (frame)
+                  (paint-top frame)
+                  (paint-bottom frame)))))]
+
+@examples[#:eval img-eval
+          (drawing (partial (below wave
+                                   (flip-horiz wave))
+                            test-frame))]
+
+In terms of @tt{rotation}s and @tt{below}:
+
+@examples[#:eval img-eval #:label #f
+          (define (below painter1 painter2)
+            (rotate270 (beside (rotate90 painter1)
+                               (rotate90 painter2))))]
+
+@examples[#:eval img-eval
+          (drawing (partial (below wave
+                                   (flip-horiz wave))
+                            test-frame))]
