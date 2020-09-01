@@ -544,7 +544,7 @@ layer of recursive calls, doubling their number and thus doubling the time taken
         (list->tree (ordered-set-union (set-elements set1)
                                        (set-elements set2))))]
 
-@tt{set-elements}, or @tt{tree->list-2}, @tt{list->tree} and @tt{ordered-set-union} are all
+@tt{set-elements} (or @tt{tree->list-2}), @tt{list->tree} and @tt{ordered-set-union} are all
 @${\Theta(n)}. Thus, @tt{union-set} is also @${\Theta(n)}.
 
 @sicp[(print-set (union-set (list->tree '(1 3 5 7 9))
