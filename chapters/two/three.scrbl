@@ -271,17 +271,58 @@ whose @tt{car} is in fact @tt{quote}.
       (define (intersection-set set1 set2)
         (cond ((or (null? set1) (null? set2)) '())
               ((element-of-set? (car set1) set2)
-         (cons (car set1)
-               (intersection-set (cdr set1) set2)))
-        (else (intersection-set (cdr set1) set2))))]
+               (cons (car set1)
+                     (intersection-set (cdr set1) set2)))
+              (else (intersection-set (cdr set1) set2))))]
 
-Set printing can be the same as list printing but with a @tt{#} at the start:
+Set printing can be the same as list printing but with braces instead of parentheses:
 
 @sicpnl[(define (print-set set)
-          (display "#")
-          (print-list set))]
+          (display "{")
+          (let ([printing-set (fold-left (lambda (l el)
+                                           (if (memq el l)
+                                               l
+                                               (cons el l)))
+                                         '()
+                                         (cdr set))])
+            (if (null? printing-set)
+                '()
+                (begin (display (car printing-set))
+                       (for-each (lambda (el)
+                                   (display " ")
+                                   (display el))
+                                 (cdr printing-set)))))
+          (display "}"))]
 
 @sicpnl[(define union-set
           (partial fold-right adjoin-set))]
 
 @sicp[(print-set (union-set '(a b c) '(b c d)))]
+
+@section{Exercise 2.60}
+
+@sicpnl[(define adjoin-set cons)
+        (define union-set append)]
+
+@tt{element-of-set?} and @tt{intersection-set} can be kept the same.
+
+@sicp[(print-set (adjoin-set 'd '(a b c)))
+      (print-set (union-set '(a b c) '(b c d)))
+      (print-set (intersection-set (union-set '(a b c)
+                                              '(a d e))
+                                   (union-set '(a b e)
+                                              '(a c d))))]
+
+@sicp[#:label "Printing them as lists instead:"
+      (print-list (adjoin-set 'd '(a b c)))
+      (print-list (union-set '(a b c) '(b c d)))
+      (print-list (intersection-set (union-set '(a b c)
+                                               '(a d e))
+                                    (union-set '(a b e)
+                                               '(a c d))))]
+
+This implementation does not provide anything over using a
+list instead.
+
+While adding to the set is very fast, checking whether the set
+contains an element is slower, as there may be duplicates.
