@@ -347,3 +347,26 @@ This implementation is @${O(n)} at most, and @${O({n \over 2})} on average:
 @sicpnl[(define (set-elements set) set)]
 
 @sicp[(print-set (adjoin-set 3 '(1 2 4 5)))]
+
+@section{Exercise 2.62}
+
+@sicpnl[(define (union-set a b)
+          (cond [(null? a) b]
+                [(null? b) a]
+                [(= (car a)
+                    (car b))
+                 (cons (car a)
+                       (union-set (cdr a)
+                                  (cdr b)))]
+                [(< (car a)
+                    (car b))
+                 (cons (car a)
+                       (union-set (cdr a)
+                                  b))]
+                [else
+                 (cons (car b)
+                       (union-set a
+                                  (cdr b)))]))]
+
+@sicp[(print-set (union-set '(1 2 3 5 7 9)
+                            '(2 3 4 6 8 9)))]
