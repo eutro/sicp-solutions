@@ -510,3 +510,9 @@ Becomes:
        #:suffixes (list ".svg"
                         ".png"
                         ".pdf")]
+
+@subsection{Exercise 2.64.b}
+
+@tt{list->tree} is of time complexity @${\Theta(n)} for an input list of length @${n},
+as doubling the input length adds another layer to the tree, which requires another
+layer of recursive calls, doubling their number and thus doubling the time taken.
