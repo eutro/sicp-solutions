@@ -277,21 +277,18 @@ whose @tt{car} is in fact @tt{quote}.
 
 Set printing can be the same as list printing but with braces instead of parentheses:
 
-@sicpnl[(define (print-set set)
+@sicpnl[(define (set-elements set) set)
+
+        (define (print-set set)
           (display "{")
-          (let ([printing-set (fold-left (lambda (l el)
-                                           (if (memq el l)
-                                               l
-                                               (cons el l)))
-                                         '()
-                                         (cdr set))])
-            (if (null? printing-set)
+          (let ([enumerated (set-elements set)])
+            (if (null? enumerated)
                 '()
-                (begin (display (car printing-set))
+                (begin (display (car enumerated))
                        (for-each (lambda (el)
                                    (display " ")
                                    (display el))
-                                 (cdr printing-set)))))
+                                 (cdr enumerated)))))
           (display "}"))]
 
 @sicpnl[(define union-set
@@ -305,6 +302,15 @@ Set printing can be the same as list printing but with braces instead of parenth
         (define union-set append)]
 
 @tt{element-of-set?} and @tt{intersection-set} can be kept the same.
+
+@sicp[#:label "Element enumeration must be redefined though."
+      (define (set-elements set)
+        (fold-left (lambda (existing next)
+                     (if (element-of-set? next existing)
+                         existing
+                         (cons next existing)))
+                   nil
+                   set))]
 
 @sicp[(print-set (adjoin-set 'd '(a b c)))
       (print-set (union-set '(a b c) '(b c d)))
@@ -326,3 +332,18 @@ list instead.
 
 While adding to the set is very fast, checking whether the set
 contains an element is slower, as there may be duplicates.
+
+@section{Exercise 2.61}
+
+This implementation is @${O(n)} at most, and @${O({n \over 2})} on average:
+
+@sicpnl[(define (adjoin-set x set)
+          (cond [(null? set) (list x)]
+                [(= x (car set)) set]
+                [(< x (car set)) (cons x set)]
+                [else (cons (car set)
+                            (adjoin-set x (cdr set)))]))]
+
+@sicpnl[(define (set-elements set) set)]
+
+@sicp[(print-set (adjoin-set 3 '(1 2 4 5)))]
