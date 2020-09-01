@@ -133,3 +133,19 @@ whose @tt{car} is in fact @tt{quote}.
                  (error "unknown expression type -- DERIV" exp))))]
 
 @sicp[(print-list (deriv '(+ (** x 2) (** x y)) 'x))]
+
+@section{Exercise 2.57}
+
+@sicpnl[(define (augend s)
+          (if (null? (cdddr s))
+              (caddr s)
+              (cons '+
+                    (cddr s))))
+
+        (define (multiplicand p)
+          (if (null? (cdddr p))
+              (caddr p)
+              (cons '*
+                    (cddr p))))]
+
+@sicp[(print-list (deriv '(* x y (+ x 3)) 'x))]
