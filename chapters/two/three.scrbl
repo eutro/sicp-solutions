@@ -458,3 +458,55 @@ by the left branch as the first list.
 @tt{tree->list-2} is @${\Theta(n)}, since it visits each node once,
 and uses @tt{cons} (assumed to be @${O(1)}) to prepend each entry
 to the rest of the list.
+
+@section{Exercise 2.64}
+
+@sicp[#:label "Copied:"
+      (define (list->tree elements)
+        (car (partial-tree elements (length elements))))]
+
+@sicp[#:label "Modified for readability:"
+      (define (partial-tree elts n)
+        (if (= n 0)
+            (cons '() elts)
+            (let* ([left-size (quotient (- n 1) 2)]
+                   [left-result (partial-tree elts left-size)]
+                   [left-tree (car left-result)]
+                   [non-left-elts (cdr left-result)]
+                   [right-size (- n (+ left-size 1))]
+                   [this-entry (car non-left-elts)]
+                   [right-result (partial-tree (cdr non-left-elts)
+                                               right-size)]
+                   [right-tree (car right-result)]
+                   [remaining-elts (cdr right-result)])
+              (cons (make-tree this-entry
+                               left-tree
+                               right-tree)
+                    remaining-elts))))]
+
+@subsection{Exercise 2.64.a}
+
+@tt{partial-tree} takes a sorted list @${v} of node values and a number @${n}.
+It returns a pair of:
+@itemlist[@item{A tree using the first @${n} elements of the list.}
+          @item{The rest of the elements of the list.}]
+
+To start, the size of the left branch is computed as half of @${n - 1}, rounded down. Then,
+@tt{partial-tree} is invoked on @${v} to compute the left branch, and to gather the
+rest of the elements of the list. The value of the current node comes from the first element
+of the list returned. @tt{partial-tree} is invoked on the @tt{cdr} of the list returned
+to get the right branch and the remaining values of the list. The tree is created from
+the computed value, the left branch and the right branch, then the pair is returned
+with that tree and the remaining values.
+
+As the base case, for @${n = 0}, an empty branch and the whole list is returned.
+
+@sicpnl[(print-list (list->tree '(1 3 5 7 9 11)))]
+
+Becomes:
+
+@image["chapters/two/asymptote-images/bf7049b9e27295e0ce1c54abb2d03a3c"
+       #:scale 1.5
+       #:suffixes (list ".svg"
+                        ".png"
+                        ".pdf")]

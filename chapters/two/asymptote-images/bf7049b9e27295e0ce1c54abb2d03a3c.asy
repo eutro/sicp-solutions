@@ -1,0 +1,16 @@
+import drawtree;
+size(4cm, 0);
+TreeNode node_5t_1t__t_3t__t____t_9t_7t__t___t_11t__t_____ = makeNode("5");
+TreeNode node_1t__t_3t__t____ = makeNode(node_5t_1t__t_3t__t____t_9t_7t__t___t_11t__t_____, "1");
+TreeNode node_t__t___ = makeNode(node_1t__t_3t__t____, "");
+TreeNode node_3t__t___ = makeNode(node_1t__t_3t__t____, "3");
+TreeNode node_t__t___ = makeNode(node_3t__t___, "");
+TreeNode node_t__t___ = makeNode(node_3t__t___, "");
+TreeNode node_9t_7t__t___t_11t__t____ = makeNode(node_5t_1t__t_3t__t____t_9t_7t__t___t_11t__t_____, "9");
+TreeNode node_7t__t___ = makeNode(node_9t_7t__t___t_11t__t____, "7");
+TreeNode node_t__t___ = makeNode(node_7t__t___, "");
+TreeNode node_t__t___ = makeNode(node_7t__t___, "");
+TreeNode node_11t__t___ = makeNode(node_9t_7t__t___t_11t__t____, "11");
+TreeNode node_t__t___ = makeNode(node_11t__t___, "");
+TreeNode node_t__t___ = makeNode(node_11t__t___, "");
+draw(node_5t_1t__t_3t__t____t_9t_7t__t___t_11t__t_____, (0,0));
