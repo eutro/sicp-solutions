@@ -40,3 +40,13 @@
 
 @sicp[(isequal? '(a (b c) d (e f (g h) i)) '(a (b c) d (e f (g h) i)))
       (isequal? '(a b c) '((a b c)))]
+
+@section{Exercise 2.55}
+
+@tt{'obj} is equivalent to @tt{(quote obj)}.
+The abbreviated form is converted into the longer form by the Scheme reader.
+
+Thus, quoting the quoted form is equivalent to @tt{'(quote obj)},
+whose @tt{car} is in fact @tt{quote}.
+
+@sicpnl[(print-list ''abracadabra)]
