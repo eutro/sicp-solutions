@@ -516,3 +516,60 @@ Becomes:
 @tt{list->tree} is of time complexity @${\Theta(n)} for an input list of length @${n},
 as doubling the input length adds another layer to the tree, which requires another
 layer of recursive calls, doubling their number and thus doubling the time taken.
+
+@section{Exercise 2.65}
+
+@sicpnl[(define set-elements tree->list-2)]
+
+@sicp[#:label "For set union, the ordered list implementation can be used."
+      (define (ordered-set-union a b)
+        (cond [(null? a) b]
+              [(null? b) a]
+              [(= (car a)
+                  (car b))
+               (cons (car a)
+                     (ordered-set-union (cdr a)
+                                        (cdr b)))]
+              [(< (car a)
+                  (car b))
+               (cons (car a)
+                     (ordered-set-union (cdr a)
+                                        b))]
+              [else
+               (cons (car b)
+                     (ordered-set-union a
+                                        (cdr b)))]))
+
+      (define (union-set set1 set2)
+        (list->tree (ordered-set-union (set-elements set1)
+                                       (set-elements set2))))]
+
+@tt{set-elements}, or @tt{tree->list-2}, @tt{list->tree} and @tt{ordered-set-union} are all
+@${\Theta(n)}. Thus, @tt{union-set} is also @${\Theta(n)}.
+
+@sicp[(print-set (union-set (list->tree '(1 3 5 7 9))
+                            (list->tree '(1 2 3 4 6))))]
+
+@sicp[#:label "The same is true for set intersection."
+      (define (ordered-set-intersection a b)
+        (cond [(or (null? a)
+                   (null? b)) '()]
+              [(= (car a)
+                  (car b))
+               (cons (car a)
+                     (ordered-set-intersection (cdr a)
+                                               (cdr b)))]
+              [(< (car a)
+                  (car b))
+               (ordered-set-intersection (cdr a)
+                                         b)]
+              [else
+               (ordered-set-intersection a
+                                         (cdr b))]))
+
+      (define (intersection-set set1 set2)
+        (list->tree (ordered-set-intersection (set-elements set1)
+                                              (set-elements set2))))]
+
+@sicp[(print-set (intersection-set (list->tree '(1 3 5 7 9))
+                                   (list->tree '(1 2 3 4 6))))]
