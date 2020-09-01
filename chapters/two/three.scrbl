@@ -149,3 +149,108 @@ whose @tt{car} is in fact @tt{quote}.
                     (cddr p))))]
 
 @sicp[(print-list (deriv '(* x y (+ x 3)) 'x))]
+
+@section{Exercise 2.58}
+
+@subsection{Exercise 2.58.a}
+
+@sicpnl[(define (make-sum a1 a2)
+          (cond ((=number? a1 0) a2)
+                ((=number? a2 0) a1)
+                ((and (number? a1) (number? a2)) (+ a1 a2))
+                (else (list a1 '+ a2))))
+
+        (define (make-product m1 m2)
+          (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+                ((=number? m1 1) m2)
+                ((=number? m2 1) m1)
+                ((and (number? m1) (number? m2)) (* m1 m2))
+                (else (list m1 '* m2))))
+
+        (define (sum? x)
+          (and (pair? x) (eq? (cadr x) '+)))
+
+        (define (addend s) (car s))
+
+        (define (augend s) (caddr s))
+
+        (define (product? x)
+          (and (pair? x) (eq? (cadr x) '*)))
+
+        (define (multiplier p) (car p))
+
+        (define (multiplicand p) (caddr p))]
+
+@sicp[(deriv '(x + (3 * (x + (y + 2)))) 'x)
+      (deriv '(x + (3 * (x + (y + 2)))) 'y)]
+
+@subsection{Exercise 2.58.b}
+
+@sicpnl[(define order-of-operands ;; Order of operands, from last applied (+/-) to first (**).
+          (list (lambda (sym)
+                  (or (eq? sym '+)
+                      (eq? sym '-)))
+                (lambda (sym)
+                  (or (eq? sym '*)
+                      (eq? sym '/)))
+                (partial eq? '**)))
+
+        (define (last-operand exp)
+          (fold-left (lambda (found matches?)
+                       (if (null? found)
+                           (fold-left (lambda (found operand)
+                                        (if (null? found)
+                                            (if (matches? operand)
+                                                operand
+                                                found)
+                                            found))
+                                      nil
+                                      exp)
+                           found))
+                     nil
+                     order-of-operands))
+
+        (define (split-on exp sym)
+          (if (eq? (car exp) sym)
+              (list '() (cdr exp))
+              (let ([next-split (split-on (cdr exp)
+                                          sym)])
+                (list (cons (car exp)
+                            (car next-split))
+                      (cadr next-split)))))
+
+        (define (sum? x)
+          (and (pair? x)
+               (eq? (last-operand x)
+                    '+)))
+
+        (define (addend s)
+          (let ([candidate (car (split-on s '+))])
+            (if (null? (cdr candidate))
+                (car candidate)
+                candidate)))
+
+        (define (augend s)
+          (let ([candidate (cadr (split-on s '+))])
+            (if (null? (cdr candidate))
+                (car candidate)
+                candidate)))
+
+        (define (product? x)
+          (and (pair? x)
+               (eq? (last-operand x) '*)))
+
+        (define (multiplier p)
+          (let ([candidate (car (split-on p '*))])
+            (if (null? (cdr candidate))
+                (car candidate)
+                candidate)))
+
+        (define (multiplicand p)
+          (let ([candidate (cadr (split-on p '*))])
+            (if (null? (cdr candidate))
+                (car candidate)
+                candidate)))]
+
+@sicp[(deriv '(x + 3 * (x + y + 2)) 'x)
+      (deriv '(x + 3 * (x + y + 2)) 'y)]
