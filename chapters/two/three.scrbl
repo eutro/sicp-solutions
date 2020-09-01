@@ -24,3 +24,19 @@
         (memq 'red '((red shoes) (blue socks)))
 
         (print-list (memq 'red '(red shoes blue socks)))]
+
+@section{Exercise 2.54}
+
+@sicpnl[(define (isequal? a b)
+          (if (list? a)
+              (and (list? b)
+                   (or (and (null? a)
+                            (null? b))
+                       (and (isequal? (car a)
+                                      (car b))
+                            (isequal? (cdr a)
+                                      (cdr b)))))
+              (eq? a b)))]
+
+@sicp[(isequal? '(a (b c) d (e f (g h) i)) '(a (b c) d (e f (g h) i)))
+      (isequal? '(a b c) '((a b c)))]
