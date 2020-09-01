@@ -254,3 +254,34 @@ whose @tt{car} is in fact @tt{quote}.
 
 @sicp[(deriv '(x + 3 * (x + y + 2)) 'x)
       (deriv '(x + 3 * (x + y + 2)) 'y)]
+
+@section{Exercise 2.59}
+
+@sicp[#:label "Copied:"
+      (define (element-of-set? x set)
+        (cond ((null? set) false)
+              ((equal? x (car set)) true)
+              (else (element-of-set? x (cdr set)))))
+
+      (define (adjoin-set x set)
+        (if (element-of-set? x set)
+            set
+            (cons x set)))
+
+      (define (intersection-set set1 set2)
+        (cond ((or (null? set1) (null? set2)) '())
+              ((element-of-set? (car set1) set2)
+         (cons (car set1)
+               (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))]
+
+Set printing can be the same as list printing but with a @tt{#} at the start:
+
+@sicpnl[(define (print-set set)
+          (display "#")
+          (print-list set))]
+
+@sicpnl[(define union-set
+          (partial fold-right adjoin-set))]
+
+@sicp[(print-set (union-set '(a b c) '(b c d)))]
