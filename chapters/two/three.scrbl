@@ -798,3 +798,54 @@ layer of recursive calls, doubling their number and thus doubling the time taken
           (C 1)
           (D 1))))
       (print-list sample-tree)]
+
+@section{Exercise 2.70}
+
+@sicpnl[(define 1950s-rock-tree
+          (generate-huffman-tree
+           '((A    2)
+             (NA   16)
+             (BOOM 1)
+             (SHA  3)
+             (GET  2)
+             (YIP  9)
+             (JOB  2)
+             (WAH  1))))
+
+        (define sample-song
+          '(GET A JOB
+
+            SHA NA NA NA NA NA NA NA NA
+
+            GET A JOB
+
+            SHA NA NA NA NA NA NA NA NA
+
+            WAH YIP YIP YIP YIP YIP YIP YIP YIP YIP
+
+            SHA BOOM))
+
+        (define encoded-song
+          (encode sample-song
+                  1950s-rock-tree))
+
+        (print-list (decode encoded-song
+                            1950s-rock-tree))
+
+        (length encoded-song)]
+
+The eight-symbol alphabet could be encoded using fixed-length code with 3 bits per symbol, as such:
+
+@tabular[#:sep @hspace[1]
+         (list (list @tt{A}    @tt{000})
+               (list @tt{NA}   @tt{001})
+               (list @tt{BOOM} @tt{010})
+               (list @tt{SHA}  @tt{011})
+               (list @tt{GET}  @tt{100})
+               (list @tt{YIP}  @tt{101})
+               (list @tt{JOB}  @tt{110})
+               (list @tt{WAH}  @tt{111}))]
+
+The number of bits would then be:
+
+@sicpnl[(* (length sample-song) 3)]
