@@ -573,3 +573,97 @@ layer of recursive calls, doubling their number and thus doubling the time taken
 
 @sicp[(print-set (intersection-set (list->tree '(1 3 5 7 9))
                                    (list->tree '(1 2 3 4 6))))]
+
+@section{Exercise 2.66}
+
+@sicp[#:label "First, define some selectors and constructors:"
+      (define node-key car)
+      (define node-val cadr)
+      (define node-left caddr)
+      (define node-right cadddr)
+      (define (make-node key val left right)
+        (list key val left right))
+
+      (define (assoc-tree tree-map key val)
+        (cond [(null? tree-map)
+               (make-node key
+                          val
+                          '()
+                          '())]
+              [(= (node-key tree-map)
+                  key)
+               (make-node key
+                          val
+                          (node-left tree-map)
+                          (node-right tree-map))]
+
+              [(< (node-key tree-map)
+                  key)
+               (make-node (node-key tree-map)
+                          (node-val tree-map)
+                          (node-left tree-map)
+                          (assoc-tree (node-right tree-map)
+                                      key val))]
+
+              [else
+               (make-node (node-key tree-map)
+                          (node-val tree-map)
+                          (assoc-tree (node-left tree-map)
+                                      key val)
+                          (node-right tree-map))]))
+
+      (define (assoc-tree* tree-map key val . kvs)
+        (let ([new-tree (assoc-tree tree-map key val)])
+          (if (null? kvs)
+              new-tree
+              (apply assoc-tree* new-tree kvs))))
+
+      (define (print-tree-map tree-map)
+        (define (print-entries node)
+          (if (null? node) '()
+              (begin (print-entries (node-left node))
+                     (newline)
+                     (display "  ")
+                     (display (node-key node))
+                     (display ": ")
+                     (write (node-val node))
+                     (print-entries (node-right node)))))
+        (display "{")
+        (print-entries tree-map)
+        (newline)
+        (display "}"))]
+
+@sicp[#:label "Then the lookup function:"
+      (define (lookup key tree-map)
+        (cond [(null? tree-map) '()]
+
+              [(= (node-key tree-map)
+                  key)
+               (node-val tree-map)]
+
+              [(< (node-key tree-map)
+                  key)
+               (lookup key (node-right tree-map))]
+
+              [else
+               (lookup key (node-left tree-map))]))]
+
+@sicp[(define test-map
+        (assoc-tree* '()
+                     5 "five"
+                     7 "seven"
+                     9 "nine"
+                     10 "ten"
+                     8 "eight"
+                     6 "six"
+                     3 "three"
+                     1 "one"
+                     2 "two"
+                     0 "zero"
+                     4 "four"))
+
+      (print-tree-map test-map)
+
+      (lookup 2 test-map)
+      (lookup 5 test-map)
+      (lookup 11 test-map)]
