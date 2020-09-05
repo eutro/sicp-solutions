@@ -834,7 +834,7 @@ layer of recursive calls, doubling their number and thus doubling the time taken
 
         (length encoded-song)]
 
-The eight-symbol alphabet could be encoded using fixed-length code with 3 bits per symbol, as such:
+The eight-symbol alphabet could be encoded using a fixed-length code with 3 bits per symbol, as such:
 
 @tabular[#:sep @hspace[1]
          (list (list @tt{A}    @tt{000})
