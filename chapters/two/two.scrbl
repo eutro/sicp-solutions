@@ -15,7 +15,7 @@
         (define (iter l)
           (begin (if (list? (car l))
                      (print-list (car l))
-                     (display (car l)))
+                     (write (car l)))
                  (if (null? (cdr l))
                      (display ")")
                      (begin (display " ")

@@ -735,10 +735,45 @@ layer of recursive calls, doubling their number and thus doubling the time taken
 
       (define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))]
 
-@sicp[#:label "For printing the message:"
-      (define (message->string symbol-list)
-        (apply string-append
-               (map symbol->string symbol-list)))]
-
 @sicp[#:label "Decoded:"
-      (message->string (decode sample-message sample-tree))]
+      (print-list (decode sample-message sample-tree))]
+
+@section{Exercise 2.68}
+
+@sicp[#:label "Copied:"
+      (define (encode message tree)
+        (if (null? message)
+            '()
+            (append (encode-symbol (car message) tree)
+                    (encode (cdr message) tree))))]
+
+@sicpnl[(print-list sample-tree)]
+
+@tt{encode-symbol} can be defined as such:
+
+@sicpnl[(define (contains? things element)
+          (and (not (null? things))
+               (or (equal? (car things) element)
+                   (contains? (cdr things) element))))
+
+        (define (branch-contains? branch sym)
+          (and (not (null? branch))
+               (contains? (symbols branch)
+                          sym)))
+
+        (define (encode-symbol sym tree)
+          (cond [(leaf? tree) '()]
+
+                [(branch-contains? (left-branch tree) sym)
+                 (cons 0 (encode-symbol sym (left-branch tree)))]
+
+                [(branch-contains? (right-branch tree) sym)
+                 (cons 1 (encode-symbol sym (right-branch tree)))]
+
+                [else (error "bad symbol" sym tree
+                             '-- 'ENCODE-SYMBOL)]))]
+
+@sicp[(print-list (encode '(A D A B B C A) sample-tree))
+      (print-list sample-message)
+
+      (encode '(A B C D E) sample-tree)]
