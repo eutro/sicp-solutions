@@ -777,3 +777,24 @@ layer of recursive calls, doubling their number and thus doubling the time taken
       (print-list sample-message)
 
       (encode '(A B C D E) sample-tree)]
+
+@section{Exercise 2.69}
+
+@sicp[#:label "Copied:"
+      (define (generate-huffman-tree pairs)
+        (successive-merge (make-leaf-set pairs)))]
+
+@sicpnl[(define (successive-merge leaf-set)
+          (if (null? (cdr leaf-set))
+              (car leaf-set)
+              (successive-merge (adjoin-set (make-code-tree (car leaf-set)
+                                                            (cadr leaf-set))
+                                            (cddr leaf-set)))))]
+
+@sicp[(print-list
+       (generate-huffman-tree
+        '((A 4)
+          (B 2)
+          (C 1)
+          (D 1))))
+      (print-list sample-tree)]
