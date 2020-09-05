@@ -849,3 +849,38 @@ The eight-symbol alphabet could be encoded using a fixed-length code with 3 bits
 The number of bits would then be:
 
 @sicpnl[(* (length sample-song) 3)]
+
+@section{Exercise 2.71}
+
+Here are two such trees:
+
+@racketblock[(generate-huffman-tree
+              '((A 1)
+                (B 2)
+                (C 4)
+                (D 8)
+                (E 16)))
+             (generate-huffman-tree
+              '((A 1)
+                (B 2)
+                (C 4)
+                (D 8)
+                (E 16)
+                (F 32)
+                (G 64)
+                (H 128)
+                (I 256)
+                (J 512)))]
+
+And drawn:
+
+@image["chapters/two/huffman/images/tree-n-5"
+       #:scale 1.5
+       #:suffixes '(".svg")]
+
+@image["chapters/two/huffman/images/tree-n-10"
+       #:scale 1.5
+       #:suffixes '(".svg")]
+
+In such a tree, it takes @${1} bit to encode the most frequent symbol,
+and @${n - 1} bits to encode the least frequent symbol, if @${n > 1}.
