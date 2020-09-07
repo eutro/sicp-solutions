@@ -884,3 +884,20 @@ And drawn:
 
 In such a tree, it takes @${1} bit to encode the most frequent symbol,
 and @${n - 1} bits to encode the least frequent symbol, if @${n > 1}.
+
+@section{Exercise 2.72}
+
+In general, visiting a node of the tree is @${O(n)}, where @${n} is the
+number of symbols in the set at the node.
+
+This is because the set is an unordered list, and thus it has to be iterated
+over to check for the symbol.
+
+@tt{encode-symbol}, for a symbol ultimately to be encoded with @${m} bits, ends up
+visiting @${m} nodes of the tree, though each successive node has a smaller
+set of symbols.
+
+In the case of @secref{Exercise_2_71}, encoding the most frequent symbol is
+@${O(n)}, since only the first node is visited, while encoding the least frequent
+symbol is @${O(n^2)}, since @${n - 1} of the nodes are visited, and each
+successive node has only one less element in its set than the node before.
