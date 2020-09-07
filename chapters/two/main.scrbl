@@ -7,3 +7,4 @@
 @include-section{one.scrbl}
 @include-section{two.scrbl}
 @include-section{three.scrbl}
+@include-section{four.scrbl}
