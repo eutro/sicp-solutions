@@ -157,3 +157,172 @@ Numbers and variables are represented differently to operations, so cannot be di
 @subsection{Exercise 2.73.d}
 
 The deriv packages would also have to flip the operand and type arguments.
+
+@section{Exercise 2.74}
+
+Let there be three divisions, @${A}, @${B} and @${C}, with their records
+structured as such:
+
+@sicpnl[(define records-a
+          '(("Albert" ((address "1 A road")
+                       (salary 1000)))
+            ("Bertie" ((address "32 B road")
+                       (salary 1300)))
+            ("Cieran" ((address "17 C street")
+                       (salary 1100)))))
+
+        (define records-b
+          '("Barry" ("4 B avenue"
+                     1400)
+                    ("Alfie" ("1 C lane"
+                              2100)
+                             ()
+                             ())
+                    ("Catherine" ("63 D close"
+                                  1700)
+                                 ()
+                                 ())))
+
+        (define records-c
+          '("Andrew"
+            (address
+             "1001 L street"
+
+             salary
+             3000)
+
+            "Beatrice"
+            (address
+             "20 E way"
+
+             salary
+             2700)
+
+            "Chloe"
+            (address
+             "57 F path"
+
+             salary
+             1800)))]
+
+These procedures are used by the divisions to access their data.
+
+@sicpnl[(define (get-record-a file employee)
+          (let ([record (assoc employee file)])
+            (if record
+                (cadr record)
+                '())))
+
+        (define (get-record-b file employee)
+          (cond [(null? file) '()]
+
+                [(string=? employee (car file))
+                 (cadr file)]
+
+                [(string<? employee (car file))
+                 (get-record-b (caddr file) employee)]
+
+                [else
+                 (get-record-b (cadddr file) employee)]))
+
+        (define (get-record-c file employee)
+          (cond [(null? file) '()]
+                [(string=? (car file) employee) (cadr file)]
+                [else (get-record-c (cddr file) employee)]))]
+
+@sicp[(print-list (get-record-a records-a "Albert"))
+      (print-list (get-record-b records-b "Catherine"))
+      (print-list (get-record-c records-c "Beatrice"))]
+
+@subsection{Exercise 2.74.a}
+
+@tt{get-record} can be defined as such:
+
+@sicpnl[(define division car)
+        (define (tag-division division file)
+          (list division file))
+        (define data cadr)
+
+        (define (get-record file employee)
+          (let ([optrecord ((get 'get-record (division file)) (data file) employee)])
+            (if (null? optrecord)
+                '()
+                (tag-division (division file) optrecord))))]
+
+The divisions need to add and install their packages:
+
+@sicpnl[(define (install-division-a-get-record)
+          (put 'records 'a (tag-division 'a records-a))
+          (put 'get-record 'a get-record-a))
+        (install-division-a-get-record)
+
+        (define (install-division-b-get-record)
+          (put 'records 'b (tag-division 'b records-b))
+          (put 'get-record 'b get-record-b))
+        (install-division-b-get-record)
+
+        (define (install-division-c-get-record)
+          (put 'records 'c (tag-division 'c records-c))
+          (put 'get-record 'c get-record-c))
+        (install-division-c-get-record)]
+
+@sicp[(print-list (get-record (get 'records 'a) "Albert"))
+      (print-list (get-record (get 'records 'b) "Catherine"))
+      (print-list (get-record (get 'records 'c) "Beatrice"))]
+
+@subsection{Exercise 2.74.b}
+
+@sicpnl[(define (get-salary record)
+          ((get 'get-salary (division record)) (data record)))
+
+        (define (install-division-a-get-salary)
+          (put 'get-salary 'a
+               (lambda (record)
+                 (cadr (assoc 'salary record)))))
+
+        (define (install-division-b-get-salary)
+          (put 'get-salary 'b cadr))
+
+        (define (division-c-lookup key record)
+          (define (loop k v . others)
+            (if (eqv? key k)
+                v
+                (apply loop others)))
+          (apply loop record))
+
+        (define (install-division-c-get-salary)
+          (put 'get-salary 'c (partial division-c-lookup 'salary)))]
+
+@sicp[(install-division-a-get-salary)
+      (install-division-b-get-salary)
+      (install-division-c-get-salary)
+
+      (get-salary (get-record (get 'records 'a) "Bertie"))
+      (get-salary (get-record (get 'records 'b) "Alfie"))
+      (get-salary (get-record (get 'records 'c) "Chloe"))]
+
+@subsection{Exercise 2.74.c}
+
+@sicpnl[(define (find-employee-record name files)
+          (if (null? files)
+              '()
+              (let ([opt-record (get-record (car files)
+                                            name)])
+                (if (null? opt-record)
+                    (find-employee-record name (cdr files))
+                    opt-record))))]
+
+@sicpnl[(define all-records
+          (map (partial get 'records)
+               '(a b c)))
+
+        (print-list (find-employee-record "Andrew" all-records))
+        (print-list (find-employee-record "Barry" all-records))
+        (print-list (find-employee-record "Dave" all-records))]
+
+@subsection{Exercise 2.74.d}
+
+Each new division needs to:
+
+@itemlist[@item{Add their records to @tt{all-records}.}
+          @item{Add their @tt{get-record} and @tt{get-salary} procedures.}]
