@@ -829,8 +829,9 @@ layer of recursive calls, doubling their number and thus doubling the time taken
           (encode sample-song
                   1950s-rock-tree))
 
-        (print-list (decode encoded-song
-                            1950s-rock-tree))
+        (equal? (decode encoded-song
+                        1950s-rock-tree)
+                sample-song)
 
         (length encoded-song)]
 
