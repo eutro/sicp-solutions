@@ -383,3 +383,31 @@ Each new division needs to:
         (print-imag-polar (make-from-real-imag 0.0 1.0))
         (print-imag-polar (make-from-mag-ang 1.0
                                              (/ pi 2)))]
+
+@section{Exercise 2.76}
+
+For explicit dispatch:
+
+@itemlist[@item{To add a new type, new clauses need to be added to each procedure that operates on the type.}
+          @item{To add a new operation, a single procedure needs to be written, and it should have a clause for each existing type.}]
+
+For operation-table style:
+
+@itemlist[@item{To add a new type, it needs to be installed in the table with all the operations implemented.}
+          @item{To add a new operation, each type needs to install their own implementation to the table.}]
+
+For message-passing style:
+
+@itemlist[@item{To add a new type, it needs to implement all the operations in its constructor.}
+          @item{To add a new operation, each type's constructor needs to add an extra operation.}]
+
+@bold{For frequent addition of new types}, message-passing style or operation-table style are both good,
+though message-passing style is slightly better, as installation in the operation-table may be tedious.
+
+Explicit dispatch would be a poor choice, as it would require changes to existing operation procedures.
+
+@bold{For frequent addition of new operations}, explicit dispatch and operation-table style are both good,
+though explicit dispatch may be preferrable, as installation in the operation-table may be tedious.
+
+Message-passing-style would be a poor choice, since it would require changes to each existing
+type's constructor.
