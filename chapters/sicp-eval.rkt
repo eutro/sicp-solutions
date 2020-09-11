@@ -15,7 +15,7 @@
 
 (define-syntax
   (sicp synx)
-  (display "Evaluating Scheme at ")
+  (display "Macroexpanding 'sicp at ")
   (display (syntax-line synx))
   (display ":")
   (display (syntax-column synx))
