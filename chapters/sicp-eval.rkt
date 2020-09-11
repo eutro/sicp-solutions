@@ -14,15 +14,15 @@
     (make-evaluator 'sicp)))
 
 (define-syntax
-  (sicp arg)
+  (sicp synx)
   (display "Evaluating Scheme at ")
-  (display (syntax-line arg))
+  (display (syntax-line synx))
   (display ":")
-  (display (syntax-column arg))
+  (display (syntax-column synx))
   (display ":")
-  (display (syntax-source arg))
+  (display (syntax-source synx))
   (newline)
-  #'(examples #:eval sicp-evaluator ,arg))
+  (datum->syntax #'sicp `(examples #:eval sicp-evaluator ,@(cdr (syntax->list synx)))))
 
 (define-syntax-rule
   (sicpnl exp ...)
