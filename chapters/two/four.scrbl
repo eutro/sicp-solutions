@@ -326,3 +326,60 @@ Each new division needs to:
 
 @itemlist[@item{Add their records to @tt{all-records}.}
           @item{Add their @tt{get-record} and @tt{get-salary} procedures.}]
+
+@section{Exercise 2.75}
+
+@sicp[#:label "Copied:"
+      (define (make-from-real-imag x y)
+        (define (dispatch op)
+          (cond ((eq? op 'real-part) x)
+                ((eq? op 'imag-part) y)
+                ((eq? op 'magnitude)
+                 (sqrt (+ (square x) (square y))))
+                ((eq? op 'angle) (atan y x))
+                (else
+                 (error "Unknown op -- MAKE-FROM-REAL-IMAG" op))))
+        dispatch)
+
+      (define (apply-generic op arg) (arg op))]
+
+@sicpnl[(define (make-from-mag-ang mag ang)
+          (lambda (op)
+            (cond [(eq? op 'magnitude) mag]
+                  [(eq? op 'angle) ang]
+                  [(eq? op 'real-part) (* (cos ang) mag)]
+                  [(eq? op 'imag-part) (* (sin ang) mag)]
+                  [else
+                   (error "Unknown op -- MAKE-FROM-MAG-ANG" op)])))]
+
+@sicpnl[(define imag-magnitude (partial apply-generic 'magnitude))
+        (define imag-angle (partial apply-generic 'angle))
+        (define imag-real-part (partial apply-generic 'real-part))
+        (define imag-imag-part (partial apply-generic 'imag-part))
+
+        (define (print-imag-cartesian imag)
+          (display (rationalize (imag-real-part imag) 1/10))
+          (display "+")
+          (display (rationalize (imag-imag-part imag) 1/10))
+          (display "i")
+          (newline))
+
+        (define pi (* 2 (asin 1)))
+        (define (print-angle radians)
+          (display (inexact->exact (rationalize (/ radians pi)
+                                                1/10)))
+          (display " π"))
+
+        (define (print-imag-polar imag)
+          (print-angle (imag-angle imag))
+          (display " : ")
+          (display (rationalize (imag-magnitude imag) 1/10))
+          (newline))]
+
+@sicpnl[(print-imag-cartesian (make-from-mag-ang (sqrt 2)
+                                                 (/ pi 4)))
+        (print-imag-cartesian (make-from-real-imag 1.0 1.0))
+
+        (print-imag-polar (make-from-real-imag 0.0 1.0))
+        (print-imag-polar (make-from-mag-ang 1.0
+                                             (/ pi 2)))]
