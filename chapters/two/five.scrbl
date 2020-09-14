@@ -245,3 +245,33 @@ The evaluation looks like this:
         (equ? rat rat))
       (equ? (make-complex-from-real-imag 1 0)
             (make-complex-from-mag-ang 1 0))]
+
+@section{Exercise 2.80}
+
+These can just be defined in terms of @tt{equ?}.
+
+@sicpnl[(make-rational 0 1)
+        (make-complex-from-real-imag 0 0)
+        (make-complex-from-mag-ang 0 0)
+
+        (equ? (make-rational 0 1) (make-rational 0 100))]
+
+@sicpnl[(define (pipe a b)
+          (lambda (first . rest)
+            (apply b (a first) rest)))]
+
+@sicpnl[(put '=zero? '(rational) (pipe (partial attach-tag 'rational)
+                                       (partial equ? (make-rational 0 1))))
+        (put '=zero? '(complex) (pipe (partial attach-tag 'complex)
+                                      (partial equ? (make-complex-from-real-imag 0 0))))
+        (put '=zero? '(scheme-number) (partial equ? 0))]
+
+(These would go into the respective packages)
+
+@sicp[#:label "Then just the top-level definition:"
+      (define (=zero? z)
+        (apply-generic '=zero? z))]
+
+@sicp[(=zero? (make-rational 0 100))
+      (=zero? (make-complex-from-mag-ang 0 0))
+      (=zero? 0)]
