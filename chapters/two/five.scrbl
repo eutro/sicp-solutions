@@ -275,3 +275,109 @@ These can just be defined in terms of @tt{equ?}.
 @sicp[(=zero? (make-rational 0 100))
       (=zero? (make-complex-from-mag-ang 0 0))
       (=zero? 0)]
+
+@section{Exercise 2.81}
+
+@sicp[#:hidden ;; h
+      (define coercion-table (make-table))
+      (define get-coercion (coercion-table 'lookup-proc))
+      (define put-coercion (coercion-table 'insert-proc!))]
+
+@sicp[#:label "Copied and slightly altered for readability:"
+      (define (apply-generic op . args)
+        (let* ([type-tags (map type-tag args)]
+               [proc (get op type-tags)])
+          (if proc
+              (apply proc (map contents args))
+              (if (= (length args) 2)
+                  (let* ([type1 (car type-tags)]
+                         [type2 (cadr type-tags)]
+                         [a1 (car args)]
+                         [a2 (cadr args)]
+                         [t1->t2 (get-coercion type1 type2)]
+                         [t2->t1 (get-coercion type2 type1)])
+                    (cond [t1->t2 (apply-generic op (t1->t2 a1) a2)]
+                          [t2->t1 (apply-generic op a1 (t2->t1 a2))]
+                          [else (error "No method for these types"
+                                       (list op type-tags))]))
+                  (error "No method for these types"
+                         (list op type-tags))))))
+
+      (define (scheme-number->complex n)
+        (make-complex-from-real-imag (contents n) 0))
+      (put-coercion 'scheme-number 'complex scheme-number->complex)]
+
+@sicp[(equ? (make-complex-from-real-imag 1 1)
+            (add 1
+                 (make-complex-from-real-imag 0 1)))]
+
+@subsection{Exercise 2.81.a}
+
+@#reader scribble/comment-reader
+(sicp
+ #:label "Even more copying:"
+ (define (scheme-number->scheme-number n) n)
+ (define (complex->complex z) z)
+ (put-coercion 'scheme-number 'scheme-number
+               scheme-number->scheme-number)
+ (put-coercion 'complex 'complex complex->complex)
+ (define (exp x y) (apply-generic 'exp x y))
+
+ ;; following added to Scheme-number package
+ (put 'exp '(scheme-number scheme-number)
+      ;; using primitive expt
+      (lambda (x y) (tag (expt x y)))))
+
+It coerces the first object to its own type, then recurses indefinitely.
+
+The procedure @italic{is} tail-recursive, so it won't overflow the call
+stack, merely hang.
+
+@sicp[(exp (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1))]
+
+@subsection{Exercise 2.81.b}
+
+Louis is incorrect.
+
+Attempting an @italic{implemented} generic operation on
+two types that can't be coerced to themselves works fine:
+
+@sicp[(add (make-rational 1 2)
+           (make-rational 1 2))]
+
+And if it's unimplemented, it will also error properly,
+(but only after attempting to coerce the objects
+to their own types):
+
+@sicp[(exp (make-rational 1 2)
+           (make-rational 1 2))]
+
+@subsection{Exercise 2.81.c}
+
+@sicpnl[(define (apply-generic op . args)
+          (let* ([type-tags (map type-tag args)]
+                 [proc (get op type-tags)])
+            (if proc
+                (apply proc (map contents args))
+                (if (and (= (length args) 2)
+                         (not (eq? (car type-tags)
+                                   (cadr type-tags))))
+                    (let* ([type1 (car type-tags)]
+                           [type2 (cadr type-tags)]
+                           [a1 (car args)]
+                           [a2 (cadr args)]
+                           [t1->t2 (get-coercion type1 type2)]
+                           [t2->t1 (get-coercion type2 type1)])
+                      (cond [t1->t2 (apply-generic op (t1->t2 a1) a2)]
+                            [t2->t1 (apply-generic op a1 (t2->t1 a2))]
+                            [else (error "No method for these types"
+                                         (list op type-tags))]))
+                    (error "No method for these types"
+                           (list op type-tags))))))]
+
+Which has the result that this no longer recurses indefinitely,
+since coercions aren't looked up if the types are the same:
+
+@sicp[(exp (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1))]
