@@ -381,3 +381,91 @@ since coercions aren't looked up if the types are the same:
 
 @sicp[(exp (make-complex-from-real-imag 1 1)
            (make-complex-from-real-imag 1 1))]
+
+@section{Exercise 2.82}
+
+@sicpnl[(define (all? coll)
+          (fold-left (lambda (a b) (and a b))
+                     true
+                     coll))
+
+        (define (all-same? coll)
+          (or (null? coll)
+              (all? (map (partial eq? (car coll)) coll))))]
+
+@sicp[(all-same? '(a a a a))
+      (all-same? '(a a b a))]
+
+@sicpnl[(define (list-repeated n x)
+          (define (loop col n)
+            (if (= 0 n)
+                col
+                (loop (cons x col)
+                      (dec n))))
+          (loop '() n))
+
+        (define (coerce-all type coll)
+          (if (null? coll)
+              '()
+              (let* ([f (car coll)]
+                     [ft (type-tag f)]
+                     [ft->type (if (eq? ft type)
+                                   (lambda (x) x)
+                                   (get-coercion ft type))])
+                (and ft->type
+                     (let ([next (coerce-all type (cdr coll))])
+                       (and next
+                            (cons (ft->type f) next)))))))
+
+        (define (apply-generic op . args)
+          (let* ([type-tags (map type-tag args)]
+                 [proc (get op type-tags)])
+            (if proc
+                (apply proc (map contents args))
+                (if (not (all-same? type-tags))
+                    (letrec ([arg-count (length args)]
+                             [loop (lambda (types)
+                                     (if (null? types)
+                                         (error "No method for these types"
+                                                (list op type-tags))
+                                         (let* ([target-type (car types)]
+                                                [types-if-coerced (list-repeated arg-count target-type)]
+                                                [proc (get op types-if-coerced)])
+                                           (if proc
+                                               (let ([coerced (coerce-all target-type args)])
+                                                 (if coerced
+                                                     (apply proc (map contents coerced))
+                                                     (loop (cdr types))))
+                                               (loop (cdr types))))))])
+                      (loop type-tags))
+                    (error "No method for these types"
+                           (list op type-tags))))))]
+
+@sicp[#:label "An example generic procedure for adding four complex numbers:"
+      (let ([tag (lambda (x) (cons 'complex x))])
+        (put 'add '(complex complex complex complex)
+             (lambda (a b c d)
+               (add (add (tag a)
+                         (tag b))
+                    (add (tag c)
+                         (tag d))))))
+
+      (define (add . args)
+        (apply apply-generic 'add args))]
+
+@sicp[(add (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1))
+      (add (make-complex-from-real-imag 1 1)
+           1
+           (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1))
+      (add 1
+           1
+           (make-complex-from-real-imag 1 1)
+           (make-complex-from-real-imag 1 1))
+      (add 1
+           (make-complex-from-real-imag 1 1)
+           1
+           1)]
