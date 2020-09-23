@@ -10,23 +10,33 @@
 @section{Exercise 2.17}
 
 @sicp[#:label "List printing:"
+      (define (print-el el)
+        (cond [(list? el) (print-list el)]
+              [(pair? el) (print-pair el)]
+              [else (write el)]))
       (define (print-list l)
         (display "(")
         (define (iter l)
-          (begin (if (list? (car l))
-                     (print-list (car l))
-                     (write (car l)))
+          (begin (print-el (car l))
                  (if (null? (cdr l))
                      (display ")")
                      (begin (display " ")
                             (iter (cdr l))))))
         (if (null? l)
             (display ")")
-            (iter l)))]
+            (iter l)))
+      (define (print-pair p)
+        (display "(")
+        (print-el (car p))
+        (display " . ")
+        (print-el (cdr p))
+        (display ")"))]
 
 @sicp[
  (print-list nil)
- (print-list (list 1 2 3 4))]
+ (print-list (list 1 2 3 4))
+ (print-pair (cons 1 2))
+ (print-list (list 1 2 (cons 3 4)))]
 
 @sicpnl[
  (define (last-pair l)

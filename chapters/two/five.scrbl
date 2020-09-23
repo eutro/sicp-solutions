@@ -250,9 +250,9 @@ The evaluation looks like this:
 
 These can just be defined in terms of @tt{equ?}.
 
-@sicpnl[(make-rational 0 1)
-        (make-complex-from-real-imag 0 0)
-        (make-complex-from-mag-ang 0 0)
+@sicpnl[(print-el (make-rational 0 1))
+        (print-el (make-complex-from-real-imag 0 0))
+        (print-el (make-complex-from-mag-ang 0 0))
 
         (equ? (make-rational 0 1) (make-rational 0 100))]
 
@@ -343,15 +343,17 @@ Louis is incorrect.
 Attempting an @italic{implemented} generic operation on
 two types that can't be coerced to themselves works fine:
 
-@sicp[(add (make-rational 1 2)
-           (make-rational 1 2))]
+@sicp[(print-el
+       (add (make-rational 1 2)
+            (make-rational 1 2)))]
 
 And if it's unimplemented, it will also error properly,
 (but only after attempting to coerce the objects
 to their own types):
 
-@sicp[(exp (make-rational 1 2)
-           (make-rational 1 2))]
+@sicp[(print-el
+       (exp (make-rational 1 2)
+            (make-rational 1 2)))]
 
 @subsection{Exercise 2.81.c}
 
@@ -453,19 +455,23 @@ since coercions aren't looked up if the types are the same:
       (define (add . args)
         (apply apply-generic 'add args))]
 
-@sicp[(add (make-complex-from-real-imag 1 1)
-           (make-complex-from-real-imag 1 1)
-           (make-complex-from-real-imag 1 1)
-           (make-complex-from-real-imag 1 1))
-      (add (make-complex-from-real-imag 1 1)
-           1
-           (make-complex-from-real-imag 1 1)
-           (make-complex-from-real-imag 1 1))
-      (add 1
-           1
-           (make-complex-from-real-imag 1 1)
-           (make-complex-from-real-imag 1 1))
-      (add 1
-           (make-complex-from-real-imag 1 1)
-           1
-           1)]
+@sicp[(print-el
+       (add (make-complex-from-real-imag 1 1)
+            (make-complex-from-real-imag 1 1)
+            (make-complex-from-real-imag 1 1)
+            (make-complex-from-real-imag 1 1)))
+      (print-el
+       (add (make-complex-from-real-imag 1 1)
+            1
+            (make-complex-from-real-imag 1 1)
+            (make-complex-from-real-imag 1 1)))
+      (print-el
+       (add 1
+            1
+            (make-complex-from-real-imag 1 1)
+            (make-complex-from-real-imag 1 1)))
+      (print-el
+       (add 1
+            (make-complex-from-real-imag 1 1)
+            1
+            1))]
