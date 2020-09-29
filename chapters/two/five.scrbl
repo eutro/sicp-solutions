@@ -484,3 +484,40 @@ For example, an @tt{exp} definition for the types
 up when @tt{exp} is called with the types
 @racket[(complex scheme-number)], even if
 @tt{scheme-number} can be coerced to @tt{rational}.
+
+@section{Exercise 2.83}
+
+@sicpnl[(define (raise obj)
+          (apply-generic 'raise obj))]
+
+@sicp[#:label "Some new types, and their generic operations:"
+      (define (make-integer n)
+        (attach-tag 'integer n))
+      (define (make-real x)
+        (attach-tag 'real x))
+
+      (put 'raise '(integer)
+           (lambda (int)
+             (make-rational int 1)))
+
+      (put 'raise '(rational)
+           (lambda (rat)
+             (make-real (/ (numer rat)
+                           (denom rat)))))
+
+      (put 'raise '(real)
+           (lambda (real)
+             (make-complex-from-real-imag (contents real)
+                                          0)))]
+
+(These would go in their respective packages)
+
+@sicp[(define a-number (make-integer 1))
+      (print-el a-number)
+      (define a-number (raise a-number))
+      (print-el a-number)
+      (define a-number (raise a-number))
+      (print-el a-number)
+      (define a-number (raise a-number))
+      (print-el a-number)
+      (define a-number (raise a-number))]
