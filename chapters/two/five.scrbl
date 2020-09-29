@@ -475,3 +475,12 @@ since coercions aren't looked up if the types are the same:
             (make-complex-from-real-imag 1 1)
             1
             1))]
+
+This would not be sufficient for mixed-type operations, i.e.
+operations that operate on different types.
+
+For example, an @tt{exp} definition for the types
+@racket[(complex rational)], would not be looked
+up when @tt{exp} is called with the types
+@racket[(complex scheme-number)], even if
+@tt{scheme-number} can be coerced to @tt{rational}.
