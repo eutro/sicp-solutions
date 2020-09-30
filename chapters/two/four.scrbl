@@ -357,9 +357,9 @@ Each new division needs to:
         (define imag-real-part (partial apply-generic 'real-part))
         (define imag-imag-part (partial apply-generic 'imag-part))
 
-        (define (print-imag-cartesian imag)
+        (define (print-complex-cartesian imag)
           (display (rationalize (imag-real-part imag) 1/10))
-          (display "+")
+          (display " + ")
           (display (rationalize (imag-imag-part imag) 1/10))
           (display "i")
           (newline))
@@ -370,19 +370,19 @@ Each new division needs to:
                                                 1/10)))
           (display " π"))
 
-        (define (print-imag-polar imag)
+        (define (print-complex-polar imag)
           (print-angle (imag-angle imag))
           (display " : ")
           (display (rationalize (imag-magnitude imag) 1/10))
           (newline))]
 
-@sicpnl[(print-imag-cartesian (make-from-mag-ang (sqrt 2)
-                                                 (/ pi 4)))
-        (print-imag-cartesian (make-from-real-imag 1.0 1.0))
+@sicpnl[(print-complex-cartesian (make-from-mag-ang (sqrt 2)
+                                                    (/ pi 4)))
+        (print-complex-cartesian (make-from-real-imag 1.0 1.0))
 
-        (print-imag-polar (make-from-real-imag 0.0 1.0))
-        (print-imag-polar (make-from-mag-ang 1.0
-                                             (/ pi 2)))]
+        (print-complex-polar (make-from-real-imag 0.0 1.0))
+        (print-complex-polar (make-from-mag-ang 1.0
+                                                (/ pi 2)))]
 
 @section{Exercise 2.76}
 

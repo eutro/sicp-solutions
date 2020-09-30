@@ -521,3 +521,120 @@ up when @tt{exp} is called with the types
       (define a-number (raise a-number))
       (print-el a-number)
       (define a-number (raise a-number))]
+
+@section{Exercise 2.84}
+
+The upper type can simply be obtained by @tt{raise}-ing
+the object and taking its type tag. First, the existence
+of the @tt{raise} procedure for the type needs to be checked
+to determine if it's the highest type.
+
+@tt{raise} can be redefined as such:
+@sicpnl[(define (raise obj)
+          (let ([raiser (get 'raise (list (type-tag obj)))])
+            (if raiser
+                (raiser (contents obj))
+                #f)))]
+
+@sicpnl[(define (type>? a b)
+          "Checks whether the type of a is higher than the type of b."
+          (if (eq? (type-tag a)
+                   (type-tag b))
+              #f
+              (let ([ra (raise a)]
+                    [rb (raise b)])
+                (cond [(not ra) #t]
+                      [(not rb) #f]
+                      [else (type>? ra rb)]))))
+
+        (define (max-by gt? first . others)
+          (if (null? others)
+              first
+              (let ([second (car others)])
+                (apply max-by
+                       gt?
+                       (if (gt? first second)
+                           first
+                           second)
+                       (cdr others)))))
+
+        (define (raise-to type obj)
+          (if (eq? (type-tag obj)
+                   type)
+              obj
+              (let ([raised (raise obj)])
+                (if (not raised)
+                    (error "Couldn't raise object -- RAISE-TO" obj)
+                    (raise-to type raised)))))
+
+        (define (apply-generic op . args)
+          (let* ([type-tags (map type-tag args)]
+                 [proc (get op type-tags)])
+            (cond [proc (apply proc (map contents args))]
+                  [(all-same? type-tags) (error "No method for these types"
+                                                (list op type-tags))]
+                  [else
+                   (apply apply-generic
+                          op
+                          (map (partial raise-to
+                                        (type-tag (apply max-by
+                                                         type>?
+                                                         args)))
+                               args))])))]
+
+@sicp[(print-el (add (make-complex-from-real-imag 1 1)
+                     (make-integer 2)))]
+
+Adding a higher type than complex numbers, like quaternions,
+is as simple as adding the raising procedure and setting the upper-type.
+
+@sicp[#:label "A simple definition of quaternions:"
+      (define (make-quat r i j k)
+        (lambda (f)
+          (f r i j k)))
+      (define (quat-r quat)
+        (quat (lambda (r i j k) r)))
+      (define (quat-i quat)
+        (quat (lambda (real i j k) i)))
+      (define (quat-j quat)
+        (quat (lambda (real i j k) j)))
+      (define (quat-k quat)
+        (quat (lambda (real i j k) k)))
+      (define (print-quat quat)
+        (quat (lambda (r i j k)
+                (display r)
+                (display " + ")
+                (display i)
+                (display "i + ")
+                (display j)
+                (display "j + ")
+                (display k)
+                (display "k")
+                (newline))))]
+
+@sicp[#:label "Then adding it to the type system:"
+      (define (make-quaternion r i j k)
+        (attach-tag 'quaternion
+                    (make-quat r i j k)))
+      (put 'raise '(complex)
+           (let ([real-part (lambda (z) (apply-generic 'real-part z))]
+                 [imag-part (lambda (z) (apply-generic 'imag-part z))])
+             (lambda (c)
+               (make-quaternion (real-part c)
+                                (imag-part c)
+                                0
+                                0))))
+      (put 'add '(quaternion quaternion)
+           (lambda (a b)
+             (make-quaternion (+ (quat-r a)
+                                 (quat-r b))
+                              (+ (quat-i a)
+                                 (quat-i b))
+                              (+ (quat-j a)
+                                 (quat-j b))
+                              (+ (quat-k a)
+                                 (quat-k b)))))]
+
+@sicpnl[(print-quat (contents (add (make-quaternion 0 0 3 4)
+                                   (add (make-complex-from-real-imag 0 2)
+                                        (make-integer 1)))))]
