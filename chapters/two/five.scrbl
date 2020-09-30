@@ -586,7 +586,7 @@ to determine if it's the highest type.
                      (make-integer 2)))]
 
 Adding a higher type than complex numbers, like quaternions,
-is as simple as adding the raising procedure and setting the upper-type.
+is as simple as adding the raising procedure.
 
 @sicp[#:label "A simple definition of quaternions:"
       (define (make-quat r i j k)
