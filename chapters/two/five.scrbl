@@ -507,8 +507,7 @@ up when @tt{exp} is called with the types
 
       (put 'raise '(real)
            (lambda (real)
-             (make-complex-from-real-imag (contents real)
-                                          0)))]
+             (make-complex-from-real-imag real 0)))]
 
 (These would go in their respective packages)
 
@@ -609,8 +608,7 @@ is as simple as adding the raising procedure.
                 (display j)
                 (display "j + ")
                 (display k)
-                (display "k")
-                (newline))))]
+                (display "k"))))]
 
 @sicp[#:label "Then adding it to the type system:"
       (define (make-quaternion r i j k)
@@ -638,3 +636,112 @@ is as simple as adding the raising procedure.
 @sicpnl[(print-quat (contents (add (make-quaternion 0 0 3 4)
                                    (add (make-complex-from-real-imag 0 2)
                                         (make-integer 1)))))]
+
+@section{Exercise 2.85}
+
+@sicp[#:label "First, generic displaying:"
+      (put 'display '(integer) display)
+      (put 'display '(rational)
+           (lambda (n)
+             (display (numer n))
+             (display "/")
+             (display (denom n))))
+      (put 'display '(real) display)
+      (put 'display '(complex) print-complex-cartesian)
+      (put 'display '(quaternion) print-quat)
+      (define (display-generic obj)
+        (apply-generic 'display obj))
+      (define (print-generic obj)
+        (display-generic obj)
+        (newline))]
+
+@sicp[(define a-number (make-integer 1))
+      (print-generic a-number)
+      (define a-number (raise a-number))
+      (print-generic a-number)
+      (define a-number (raise a-number))
+      (print-generic a-number)
+      (define a-number (raise a-number))
+      (print-generic a-number)
+      (define a-number (raise a-number))
+      (print-generic a-number)]
+
+@sicp[#:label "Then generic drop operations:"
+      (put 'drop '(quaternion)
+           (lambda (quat)
+             (make-complex-from-real-imag (quat-r quat)
+                                          (quat-i quat))))
+      (put 'drop '(complex)
+           (let ([real-part (lambda (z) (apply-generic 'real-part z))])
+             (lambda (c)
+               (make-real (real-part c)))))
+      (put 'drop '(real)
+           (lambda (r)
+             (let ([rat (inexact->exact (rationalize r (/ r 100)))])
+               (make-rational (numerator rat)
+                              (denominator rat)))))
+      (put 'drop '(rational)
+           (lambda (rat)
+             (make-integer (quotient (numer rat)
+                                     (denom rat)))))]
+
+@sicp[(define a-number (make-quaternion pi 4 5 6))
+      (print-generic a-number)
+      (define a-number (apply-generic 'drop a-number))
+      (print-generic a-number)
+      (define a-number (apply-generic 'drop a-number))
+      (print-generic a-number)
+      (define a-number (apply-generic 'drop a-number))
+      (print-generic a-number)
+      (define a-number (apply-generic 'drop a-number))
+      (print-generic a-number)]
+
+@sicp[#:label "Finally, definitions of equivalence."
+      (put 'equ? '(integer integer) =)
+      (put 'equ? '(rational rational)
+           (lambda (a b)
+             (and (= (numer a)
+                     (numer b))
+                  (= (denom a)
+                     (denom b)))))
+      (put 'equ? '(real real) =)
+      (put 'equ? '(complex complex)
+           (lambda (a b)
+             (and (= (imag-real-part a)
+                     (imag-real-part b))
+                  (= (imag-imag-part a)
+                     (imag-imag-part b)))))
+      (put 'equ? '(quaternion quaternion)
+           (lambda (a b)
+             (and (= (quat-r a)
+                     (quat-r b))
+                  (= (quat-i a)
+                     (quat-i b))
+                  (= (quat-j a)
+                     (quat-j b))
+                  (= (quat-k a)
+                     (quat-k b)))))]
+
+@sicp[#:label "Then the top-level drop function:"
+      (define (drop obj)
+        (let ([dropped (drop-1 obj)])
+          (cond [(not dropped) obj]
+                [(equ? dropped obj) (drop dropped)]
+                [else obj])))
+      (define (drop-1 obj)
+        (let ([dropper (get 'drop (list (type-tag obj)))])
+          (if dropper
+              (dropper (contents obj))
+              #f)))]
+
+(Note that the @tt{apply-generic} of @tt{equ?} automatically raises the dropped object back up.)
+
+@sicp[(define (type-and-print obj)
+        (display (type-tag obj))
+        (newline)
+        (print-generic obj))
+      (type-and-print (drop (make-quaternion 1 2 3 4)))
+      (type-and-print (drop (make-quaternion 1 2 0 0)))
+      (type-and-print (drop (make-quaternion pi 0 0 0)))
+      (type-and-print (drop (make-quaternion 1/2 0 0 0)))
+      (type-and-print (drop (make-quaternion 1 0 0 0)))]

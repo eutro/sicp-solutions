@@ -352,15 +352,15 @@ Each new division needs to:
                   [else
                    (error "Unknown op -- MAKE-FROM-MAG-ANG" op)])))]
 
-@sicpnl[(define imag-magnitude (partial apply-generic 'magnitude))
-        (define imag-angle (partial apply-generic 'angle))
-        (define imag-real-part (partial apply-generic 'real-part))
-        (define imag-imag-part (partial apply-generic 'imag-part))
+@sicpnl[(define (imag-magnitude c) (apply-generic 'magnitude c))
+        (define (imag-angle c) (apply-generic 'angle c))
+        (define (imag-real-part c) (apply-generic 'real-part c))
+        (define (imag-imag-part c) (apply-generic 'imag-part c))
 
         (define (print-complex-cartesian imag)
-          (display (rationalize (imag-real-part imag) 1/10))
+          (display (imag-real-part imag))
           (display " + ")
-          (display (rationalize (imag-imag-part imag) 1/10))
+          (display (imag-imag-part imag))
           (display "i")
           (newline))
 
@@ -373,7 +373,7 @@ Each new division needs to:
         (define (print-complex-polar imag)
           (print-angle (imag-angle imag))
           (display " : ")
-          (display (rationalize (imag-magnitude imag) 1/10))
+          (display (imag-magnitude imag))
           (newline))]
 
 @sicpnl[(print-complex-cartesian (make-from-mag-ang (sqrt 2)
