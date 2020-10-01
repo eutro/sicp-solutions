@@ -667,33 +667,33 @@ is as simple as adding the raising procedure.
       (print-generic a-number)]
 
 @sicp[#:label "Then generic drop operations:"
-      (put 'drop '(quaternion)
+      (put 'project '(quaternion)
            (lambda (quat)
              (make-complex-from-real-imag (quat-r quat)
                                           (quat-i quat))))
-      (put 'drop '(complex)
+      (put 'project '(complex)
            (let ([real-part (lambda (z) (apply-generic 'real-part z))])
              (lambda (c)
                (make-real (real-part c)))))
-      (put 'drop '(real)
+      (put 'project '(real)
            (lambda (r)
              (let ([rat (inexact->exact (rationalize r (/ r 100)))])
                (make-rational (numerator rat)
                               (denominator rat)))))
-      (put 'drop '(rational)
+      (put 'project '(rational)
            (lambda (rat)
              (make-integer (quotient (numer rat)
                                      (denom rat)))))]
 
 @sicp[(define a-number (make-quaternion pi 4 5 6))
       (print-generic a-number)
-      (define a-number (apply-generic 'drop a-number))
+      (define a-number (apply-generic 'project a-number))
       (print-generic a-number)
-      (define a-number (apply-generic 'drop a-number))
+      (define a-number (apply-generic 'project a-number))
       (print-generic a-number)
-      (define a-number (apply-generic 'drop a-number))
+      (define a-number (apply-generic 'project a-number))
       (print-generic a-number)
-      (define a-number (apply-generic 'drop a-number))
+      (define a-number (apply-generic 'project a-number))
       (print-generic a-number)]
 
 @sicp[#:label "Finally, definitions of equivalence."
@@ -724,12 +724,12 @@ is as simple as adding the raising procedure.
 
 @sicp[#:label "Then the top-level drop function:"
       (define (drop obj)
-        (let ([dropped (drop-1 obj)])
+        (let ([dropped (project obj)])
           (cond [(not dropped) obj]
                 [(equ? dropped obj) (drop dropped)]
                 [else obj])))
-      (define (drop-1 obj)
-        (let ([dropper (get 'drop (list (type-tag obj)))])
+      (define (project obj)
+        (let ([dropper (get 'project (list (type-tag obj)))])
           (if dropper
               (dropper (contents obj))
               #f)))]
