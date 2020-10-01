@@ -126,7 +126,7 @@ For positive integer values of @tt{n}.
  (display (list (pascal 1 0) (pascal 1 1)))
  (display (list (pascal 2 0) (pascal 2 1) (pascal 2 2)))
  (display (list (pascal 3 0) (pascal 3 1) (pascal 3 2) (pascal 3 3)))
- (display (list (pascal 4 0) (pascal 4 1) (pascal 4 2) (pascal 4 3)(pascal 4 4)))]
+ (display (list (pascal 4 0) (pascal 4 1) (pascal 4 2) (pascal 4 3) (pascal 4 4)))]
 
 @section{Exercise 1.13}
 @${Fib(n)} is defined as:

@@ -41,11 +41,11 @@ Written in Scheme is:
 
 @section{Exercise 1.3}
 
-@sicpnl[
- (define (sum-of-larger-squares a b c) (cond ((and (< a b) (< a c)) (+ (* b b) (* c c)))
-                                             ((and (< b a) (< b c)) (+ (* a a) (* c c)))
-                                             (else (+ (* a a) (* b b)))))]
-          
+@sicpnl[(define (sum-of-larger-squares a b c)
+          (cond ((and (< a b) (< a c)) (+ (* b b) (* c c)))
+                ((and (< b a) (< b c)) (+ (* a a) (* c c)))
+                (else (+ (* a a) (* b b)))))]
+
 @examples[#:eval sicp-evaluator
           (sum-of-larger-squares 1 2 3)
           (sum-of-larger-squares 2 3 1)
