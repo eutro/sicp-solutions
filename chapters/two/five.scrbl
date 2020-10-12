@@ -745,3 +745,86 @@ is as simple as adding the raising procedure.
       (type-and-print (drop (make-quaternion pi 0 0 0)))
       (type-and-print (drop (make-quaternion 1/2 0 0 0)))
       (type-and-print (drop (make-quaternion 1 0 0 0)))]
+
+@sicp[#:label "Then, apply-generic:"
+      (define (apply-generic op . args)
+          (let* ([type-tags (map type-tag args)]
+                 [proc (get op type-tags)])
+            (cond [proc (let ([ret (apply proc (map contents args))])
+                          (if (pair? ret)
+                              (drop ret)
+                              ret))]
+                  [(all-same? type-tags) (error "No method for these types"
+                                                (list op type-tags))]
+                  [else
+                   (apply apply-generic
+                          op
+                          (map (partial raise-to
+                                        (type-tag (apply max-by
+                                                         type>?
+                                                         args)))
+                               args))])))]
+
+@sicp[(type-and-print (add (make-quaternion 1 2 3 4)
+                           (make-quaternion 1 -2 -3 -4)))]
+
+@sicp[#:label "Quaternion multiplication for fun:"
+      (put 'mul '(quaternion quaternion)
+           (lambda (a b)
+             (make-quaternion
+              (- (* (quat-r a)
+                    (quat-r b))
+
+                 (+ (* (quat-i a)
+                       (quat-i b))
+                    (* (quat-j a)
+                       (quat-j b))
+                    (* (quat-k a)
+                       (quat-k b))))
+
+              (+ (+ (* (quat-r a)
+                       (quat-i b))
+                    (* (quat-i a)
+                       (quat-r b)))
+
+                 (- (* (quat-j a)
+                       (quat-k b))
+                    (* (quat-k a)
+                       (quat-j b))))
+
+              (+ (+ (* (quat-r a)
+                       (quat-j b))
+                    (* (quat-j a)
+                       (quat-r b)))
+
+                 (- (* (quat-k a)
+                       (quat-i b))
+                    (* (quat-i a)
+                       (quat-k b))))
+
+              (+ (+ (* (quat-r a)
+                       (quat-k b))
+                    (* (quat-k a)
+                       (quat-r b)))
+
+                 (- (* (quat-i a)
+                       (quat-j b))
+                    (* (quat-j a)
+                       (quat-i b)))))))]
+
+@sicp[#:label "For convenience:"
+      (define (mul* first . rest)
+        (if (null? rest)
+            first
+            (apply mul*
+                   (mul first (car rest))
+                   (cdr rest))))]
+
+@sicp[(type-and-print (mul* (make-quaternion 1 0 0 0)
+                            (make-quaternion 0 1 0 0)
+                            (make-quaternion 0 0 1 0)
+                            (make-quaternion 0 0 0 1)))
+      (type-and-print (mul (make-quaternion 1 2 3 4)
+                           (make-integer 2)))
+      (type-and-print (mul (make-quaternion 0 0 1 0)
+                           (make-quaternion 0 0 0 1)))]
