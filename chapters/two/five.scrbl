@@ -562,9 +562,9 @@ to determine if it's the highest type.
                    type)
               obj
               (let ([raised (raise obj)])
-                (if (not raised)
-                    (error "Couldn't raise object -- RAISE-TO" obj)
-                    (raise-to type raised)))))
+                (if raised
+                    (raise-to type raised)
+                    (error "Couldn't raise object -- RAISE-TO" type obj)))))
 
         (define (apply-generic op . args)
           (let* ([type-tags (map type-tag args)]
@@ -677,7 +677,7 @@ is as simple as adding the raising procedure.
                (make-real (real-part c)))))
       (put 'project '(real)
            (lambda (r)
-             (let ([rat (inexact->exact (rationalize r (/ r 100)))])
+             (let ([rat (inexact->exact (rationalize r 1/100))])
                (make-rational (numerator rat)
                               (denominator rat)))))
       (put 'project '(rational)
@@ -705,12 +705,6 @@ is as simple as adding the raising procedure.
                   (= (denom a)
                      (denom b)))))
       (put 'equ? '(real real) =)
-      (put 'equ? '(complex complex)
-           (lambda (a b)
-             (and (= (imag-real-part a)
-                     (imag-real-part b))
-                  (= (imag-imag-part a)
-                     (imag-imag-part b)))))
       (put 'equ? '(quaternion quaternion)
            (lambda (a b)
              (and (= (quat-r a)
@@ -748,22 +742,22 @@ is as simple as adding the raising procedure.
 
 @sicp[#:label "Then, apply-generic:"
       (define (apply-generic op . args)
-          (let* ([type-tags (map type-tag args)]
-                 [proc (get op type-tags)])
-            (cond [proc (let ([ret (apply proc (map contents args))])
-                          (if (pair? ret)
-                              (drop ret)
-                              ret))]
-                  [(all-same? type-tags) (error "No method for these types"
-                                                (list op type-tags))]
-                  [else
-                   (apply apply-generic
-                          op
-                          (map (partial raise-to
-                                        (type-tag (apply max-by
-                                                         type>?
-                                                         args)))
-                               args))])))]
+        (let* ([type-tags (map type-tag args)]
+               [proc (get op type-tags)])
+          (cond [proc (let ([ret (apply proc (map contents args))])
+                        (if (pair? ret)
+                            (drop ret)
+                            ret))]
+                [(all-same? type-tags) (error "No method for these types"
+                                              (list op type-tags))]
+                [else
+                 (apply apply-generic
+                        op
+                        (map (partial raise-to
+                                      (type-tag (apply max-by
+                                                       type>?
+                                                       args)))
+                             args))])))]
 
 @sicp[(type-and-print (add (make-quaternion 1 2 3 4)
                            (make-quaternion 1 -2 -3 -4)))]
@@ -828,3 +822,158 @@ is as simple as adding the raising procedure.
                            (make-integer 2)))
       (type-and-print (mul (make-quaternion 0 0 1 0)
                            (make-quaternion 0 0 0 1)))]
+
+@section{Exercise 2.86}
+
+The complex packages just need to use the generic operations instead
+of operations solely on scheme numbers.
+
+Also, the other number packages need to implement operations like
+sine, cosine, arctangent and square-root.
+
+@sicp[#:label "Complex packages:"
+      (define (install-rectangular-package)
+        ;; internal procedures
+        (define (real-part z) (car z))
+        (define (imag-part z) (cdr z))
+        (define (make-from-real-imag x y) (cons x y))
+        (define (magnitude z)
+          (square-root (add (mul (real-part z) (real-part z))
+                            (mul (imag-part z) (imag-part z)))))
+        (define (angle z)
+          (arctangent (imag-part z) (real-part z)))
+        (define (make-from-mag-ang r a)
+          (cons (mul r (cosine a)) (mul r (sine a))))
+        ;; interface to the rest of the system
+        (define (tag x) (attach-tag 'rectangular x))
+        (put 'real-part '(rectangular) real-part)
+        (put 'imag-part '(rectangular) imag-part)
+        (put 'magnitude '(rectangular) magnitude)
+        (put 'angle '(rectangular) angle)
+        (put 'make-from-real-imag 'rectangular
+             (lambda (x y) (tag (make-from-real-imag x y))))
+        (put 'make-from-mag-ang 'rectangular
+             (lambda (r a) (tag (make-from-mag-ang r a))))
+        'done)
+
+      (define (install-polar-package)
+        ;; internal procedures
+        (define (magnitude z) (car z))
+        (define (angle z) (cdr z))
+        (define (make-from-mag-ang r a) (cons r a))
+        (define (real-part z)
+          (mul (magnitude z) (cosine (angle z))))
+        (define (imag-part z)
+          (mul (magnitude z) (sine (angle z))))
+        (define (make-from-real-imag x y)
+          (cons (square-root (add (square x) (square y)))
+                (arctangent y x)))
+        ;; interface to the rest of the system
+        (define (tag x) (attach-tag 'polar x))
+        (put 'real-part '(polar) real-part)
+        (put 'imag-part '(polar) imag-part)
+        (put 'magnitude '(polar) magnitude)
+        (put 'angle '(polar) angle)
+        (put 'make-from-real-imag 'polar
+             (lambda (x y) (tag (make-from-real-imag x y))))
+        (put 'make-from-mag-ang 'polar
+             (lambda (r a) (tag (make-from-mag-ang r a))))
+        'done)
+
+      (define (install-complex-package)
+        ;; imported procedures from rectangular and polar packages
+        (define (make-from-real-imag x y)
+          ((get 'make-from-real-imag 'rectangular) x y))
+        (define (make-from-mag-ang r a)
+          ((get 'make-from-mag-ang 'polar) r a))
+        (define (real-part z)
+          (apply-generic 'real-part z))
+        (define (imag-part z)
+          (apply-generic 'imag-part z))
+        (define (add-complex z1 z2)
+          (make-from-real-imag (add (real-part z1) (real-part z2))
+                               (add (imag-part z1) (imag-part z2))))
+        (define (sub-complex z1 z2)
+          (make-from-real-imag (add (real-part z1) (real-part z2))
+                               (add (imag-part z1) (imag-part z2))))
+        (define (mul-complex z1 z2)
+          (make-from-mag-ang (mul (magnitude z1) (magnitude z2))
+                             (add (angle z1) (angle z2))))
+        (define (div-complex z1 z2)
+          (make-from-mag-ang (div (magnitude z1) (magnitude z2))
+                             (sub (angle z1) (angle z2))))
+        ;; interface to rest of the system
+        (define (tag z) (attach-tag 'complex z))
+        (put 'add '(complex complex)
+             (lambda (z1 z2) (tag (add-complex z1 z2))))
+        (put 'sub '(complex complex)
+             (lambda (z1 z2) (tag (sub-complex z1 z2))))
+        (put 'mul '(complex complex)
+             (lambda (z1 z2) (tag (mul-complex z1 z2))))
+        (put 'div '(complex complex)
+             (lambda (z1 z2) (tag (div-complex z1 z2))))
+        (put 'make-from-real-imag 'complex
+             (lambda (x y) (tag (make-from-real-imag x y))))
+        (put 'make-from-mag-ang 'complex
+             (lambda (r a) (tag (make-from-mag-ang r a))))
+        (put 'equ? '(complex complex)
+             (lambda (x y)
+               (and (equ? (real-part x) (real-part y))
+                    (equ? (imag-part x) (imag-part y)))))
+        'done)]
+
+@sicp[#:label "Install again:"
+      (install-rectangular-package)
+      (install-polar-package)
+      (install-complex-package)]
+
+@sicp[#:label "Some of the required generic operations:"
+      (put 'add '(rational rational)
+           (lambda (a b)
+             (make-rational (+ (* (numer a)
+                                  (denom b))
+                               (* (numer b)
+                                  (denom a)))
+                            (* (denom a)
+                               (denom b)))))
+      (put 'cosine '(real)
+           (lambda (r)
+             (make-real (cos r))))
+      (put 'mul '(real real)
+           (lambda (a b)
+             (make-real (* a b))))
+      (put 'add '(real real)
+           (lambda (a b)
+             (make-real (+ a b))))
+      (put 'sine '(real)
+           (lambda (r)
+             (make-real (sin r))))
+      (define (cosine x)
+        (apply-generic 'cosine x))
+      (define (sine x)
+        (apply-generic 'sine x))]
+
+@sicp[#:label "The raising and projecting functions also needs to be redefined:"
+      (put 'raise '(real)
+           (lambda (real)
+             (make-complex-from-real-imag (make-real real) (make-real 0))))
+      (put 'project '(complex)
+           (lambda (z) (apply-generic 'real-part z)))]
+
+@sicp[#:label "Also, Quaternions will be removed from the tower:"
+      (put 'raise '(complex) #f)]
+
+@sicp[#:label "For convenience:"
+      (define (add* first . rest)
+        (if (null? rest)
+            first
+            (apply add*
+                   (add first (car rest))
+                   (cdr rest))))]
+
+@sicp[(print-el (add* (make-complex-from-mag-ang (make-real (sqrt 2))
+                                                 (make-real (/ pi 4)))
+                      (make-complex-from-real-imag (make-integer 0)
+                                                   (make-rational 1 2))
+                      (make-complex-from-real-imag (make-real -0.0000000000011278)
+                                                   (make-real -0.0000000000011275))))]
