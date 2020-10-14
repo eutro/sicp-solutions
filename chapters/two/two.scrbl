@@ -579,8 +579,7 @@ With the base case that:
  (define (transpose mat)
    (accumulate-n cons nil mat))
  (define (matrix-*-matrix m n)
-   (let ((cols (transpose n)))
-     (map (partial matrix-*-vector cols) m)))]
+   (map (partial matrix-*-vector (transpose n)) m))]
 
 @sicp[
  (define test-matrix
