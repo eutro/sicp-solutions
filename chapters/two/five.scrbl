@@ -1,5 +1,6 @@
 #lang scribble/manual
 @(require racket/sandbox
+          (for-syntax racket/base)
           scribble/example
           scribble-math/dollar
           "../sicp-eval.rkt")
@@ -977,3 +978,185 @@ sine, cosine, arctangent and square-root.
                                                    (make-rational 1 2))
                       (make-complex-from-real-imag (make-real -0.0000000000011278)
                                                    (make-real -0.0000000000011275))))]
+
+@section{Exercise 2.87}
+
+@tt{=zero?} also needs to be implemented for some of the tower types:
+
+@sicpnl[(put '=zero? '(integer)
+             (lambda (i)
+               (= i 0)))
+        (put '=zero? '(rational)
+             (lambda (r)
+               (= 0 (numer r))))
+        (put '=zero? '(real)
+             (lambda (r)
+               (= r 0)))]
+
+@sicp[(=zero? (make-integer 0))
+      (=zero? (make-rational 0 2))
+      (=zero? (make-real 0))]
+
+@(define-syntax append-to-poly
+   (let ([poly-appended '()]
+         [max-calls 3]
+         [called 0])
+     (lambda (stx)
+       ;; for some reason this macro gets
+       ;; expanded twice, this is an elegant solution
+       (if (= called max-calls)
+           (begin (set! called 0)
+                  (set! poly-appended '()))
+           (set! called (+ called 1)))
+       (set! poly-appended
+             (append poly-appended
+                     (cdr (syntax->list stx))))
+       (let ([poly-appended poly-appended])
+         #`(sicpnl
+            (eval:alts
+             #,(let ([f (lambda (datum offset col)
+                          (datum->syntax
+                           stx
+                           datum
+                           (list (syntax-source stx)
+                                 (+ (syntax-line stx) offset)
+                                 col
+                                 #f
+                                 #f)))])
+                 (f (append (list (f 'define -1 1)
+                                  (f '(install-polynomial-package) -1 3)
+                                  (f '(code:comment "<the rest of the polynomial package ...>") 0 2))
+                            (cdr (syntax->list stx)))
+                    -1 0))
+             (define (install-polynomial-package)
+               ;; internal procedures
+               ;; representation of poly
+               (define (make-poly variable term-list)
+                 (cons variable term-list))
+               (define (variable p) (car p))
+               (define (term-list p) (cdr p))
+               (define (same-variable? v1 v2)
+                 (and (variable? v1) (variable? v2) (eq? v1 v2)))
+               (define (variable? x) (symbol? x))
+               ;; representation of terms and term lists
+               (define (adjoin-term term term-list)
+                 (if (=zero? (coeff term))
+                     term-list
+                     (cons term term-list)))
+               (define (the-empty-termlist) '())
+               (define (first-term term-list) (car term-list))
+               (define (rest-terms term-list) (cdr term-list))
+               (define (empty-termlist? term-list) (null? term-list))
+               (define (make-term order coeff) (list order coeff))
+               (define (order term) (car term))
+               (define (coeff term) (cadr term))
+
+               (define (add-poly p1 p2)
+                 (if (same-variable? (variable p1) (variable p2))
+                     (make-poly (variable p1)
+                                (add-terms (term-list p1)
+                                           (term-list p2)))
+                     (error "Polys not in same var -- ADD-POLY"
+                            (list p1 p2))))
+               (define (add-terms L1 L2)
+                 (cond ((empty-termlist? L1) L2)
+                       ((empty-termlist? L2) L1)
+                       (else
+                        (let ((t1 (first-term L1)) (t2 (first-term L2)))
+                          (cond ((> (order t1) (order t2))
+                                 (adjoin-term
+                                  t1 (add-terms (rest-terms L1) L2)))
+                                ((< (order t1) (order t2))
+                                 (adjoin-term
+                                  t2 (add-terms L1 (rest-terms L2))))
+                                (else
+                                 (adjoin-term
+                                  (make-term (order t1)
+                                             (add (coeff t1) (coeff t2)))
+                                  (add-terms (rest-terms L1)
+                                             (rest-terms L2)))))))))
+               (define (mul-poly p1 p2)
+                 (if (same-variable? (variable p1) (variable p2))
+                     (make-poly (variable p1)
+                                (mul-terms (term-list p1)
+                                           (term-list p2)))
+                     (error "Polys not in same var -- MUL-POLY"
+                            (list p1 p2))))
+               (define (mul-terms L1 L2)
+                 (if (empty-termlist? L1)
+                     (the-empty-termlist)
+                     (add-terms (mul-term-by-all-terms (first-term L1) L2)
+                                (mul-terms (rest-terms L1) L2))))
+               (define (mul-term-by-all-terms t1 L)
+                 (if (empty-termlist? L)
+                     (the-empty-termlist)
+                     (let ((t2 (first-term L)))
+                       (adjoin-term
+                        (make-term (+ (order t1) (order t2))
+                                   (mul (coeff t1) (coeff t2)))
+                        (mul-term-by-all-terms t1 (rest-terms L))))))
+               ;; interface to rest of the system
+               (define (tag p) (attach-tag 'polynomial p))
+               (put 'add '(polynomial polynomial)
+                    (lambda (p1 p2) (tag (add-poly p1 p2))))
+               (put 'mul '(polynomial polynomial)
+                    (lambda (p1 p2) (tag (mul-poly p1 p2))))
+               (put 'make 'polynomial
+                    (lambda (var terms) (tag (make-poly var terms))))
+               #,@poly-appended
+               'done))
+            (install-polynomial-package))))))
+
+Printing would be nice:
+@(append-to-poly
+  (define (display-poly p)
+    (let ([var (variable p)])
+      (define (loop terms)
+        (let ([term (first-term terms)])
+          (display "(")
+          (display-generic (coeff term))
+          (display ")")
+          (if (> (order term) 0)
+              (begin (display var)
+                     (if (> (order term) 1)
+                         (begin
+                           (display "^{")
+                           (display (order term))
+                           (display "}")))))
+          (let ([remaining (rest-terms terms)])
+            (if (not (empty-termlist? remaining))
+                (begin (display " + ")
+                       (loop remaining))))))
+      (if (not (empty-termlist? p))
+          (loop (reverse (term-list p))))))
+  (put 'display '(polynomial) display-poly))
+
+A polynomial is just zero if it has no terms:
+
+@(append-to-poly
+  (put '=zero? '(polynomial)
+       (lambda (p) (empty-termlist? (term-list p)))))
+
+And there aren't any convenient constructors for term lists:
+
+@(append-to-poly
+  (define (make-poly* variable . terms)
+    (define (loop terms coeff order . remaining)
+      (let ([built (adjoin-term (make-term order coeff) terms)])
+        (if (null? remaining)
+            built
+            (apply loop built remaining))))
+    (make-poly variable (apply loop (the-empty-termlist) terms)))
+  (put 'make* 'polynomial
+       (lambda args (tag (apply make-poly* args)))))
+
+@sicp[(define make-polynomial* (get 'make* 'polynomial))
+      (print-generic (make-polynomial*
+                      'x
+                      (make-polynomial*
+                       'y
+                       (make-integer 2) 3
+                       (make-complex-from-real-imag 1 2) 2) 3
+                      (make-integer 1) 2
+                      (make-rational 2 3) 1
+                      (make-real 3.025) 0))]

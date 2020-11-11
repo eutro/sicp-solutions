@@ -352,17 +352,16 @@ Each new division needs to:
                   [else
                    (error "Unknown op -- MAKE-FROM-MAG-ANG" op)])))]
 
-@sicpnl[(define (imag-magnitude c) (apply-generic 'magnitude c))
-        (define (imag-angle c) (apply-generic 'angle c))
-        (define (imag-real-part c) (apply-generic 'real-part c))
-        (define (imag-imag-part c) (apply-generic 'imag-part c))
+@sicpnl[(define (complex-magnitude c) (apply-generic 'magnitude c))
+        (define (complex-angle c) (apply-generic 'angle c))
+        (define (complex-real-part c) (apply-generic 'real-part c))
+        (define (complex-imag-part c) (apply-generic 'imag-part c))
 
-        (define (print-complex-cartesian imag)
-          (display (imag-real-part imag))
+        (define (print-complex-cartesian complex)
+          (display (complex-real-part complex))
           (display " + ")
-          (display (imag-imag-part imag))
-          (display "i")
-          (newline))
+          (display (complex-imag-part complex))
+          (display "i"))
 
         (define pi (* 2 (asin 1)))
         (define (print-angle radians)
@@ -371,10 +370,9 @@ Each new division needs to:
           (display " π"))
 
         (define (print-complex-polar imag)
-          (print-angle (imag-angle imag))
+          (print-angle (complex-angle imag))
           (display " : ")
-          (display (imag-magnitude imag))
-          (newline))]
+          (display (complex-magnitude imag)))]
 
 @sicpnl[(print-complex-cartesian (make-from-mag-ang (sqrt 2)
                                                     (/ pi 4)))
