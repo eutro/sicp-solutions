@@ -400,10 +400,10 @@ since coercions aren't looked up if the types are the same:
       (all-same? '(a a b a))]
 
 @sicpnl[(define (list-repeated n x)
-          (define (loop col n)
+          (define (loop coll n)
             (if (= 0 n)
-                col
-                (loop (cons x col)
+                coll
+                (loop (cons x coll)
                       (dec n))))
           (loop '() n))
 
@@ -577,9 +577,7 @@ to determine if it's the highest type.
                    (apply apply-generic
                           op
                           (map (partial raise-to
-                                        (type-tag (apply max-by
-                                                         type>?
-                                                         args)))
+                                        (type-tag (apply max-by type>? args)))
                                args))])))]
 
 @sicp[(print-el (add (make-complex-from-real-imag 1 1)
@@ -999,7 +997,7 @@ sine, cosine, arctangent and square-root.
 
 @(define-syntax append-to-poly
    (let ([poly-appended '()]
-         [max-calls 3]
+         [max-calls 4]
          [called 0])
      (lambda (stx)
        ;; for some reason this macro gets
@@ -1146,7 +1144,10 @@ And there aren't any convenient constructors for term lists:
         (if (null? remaining)
             built
             (apply loop built remaining))))
-    (make-poly variable (apply loop (the-empty-termlist) terms)))
+    (make-poly variable
+               (if (not (null? terms))
+                   (apply loop (the-empty-termlist) terms)
+                   (the-empty-termlist))))
   (put 'make* 'polynomial
        (lambda args (tag (apply make-poly* args)))))
 
@@ -1160,3 +1161,63 @@ And there aren't any convenient constructors for term lists:
                       (make-integer 1) 2
                       (make-rational 2 3) 1
                       (make-real 3.025) 0))]
+
+@section{Exercise 2.88}
+
+@sicpnl[(define (negate obj)
+          (apply-generic 'negate obj))
+        (put 'negate '(integer)
+             (lambda (i) (make-integer (- i))))
+        (put 'negate '(rational)
+             (lambda (r)
+               (make-rational (- (numer r))
+                              (denom r))))
+        (put 'negate '(real)
+             (lambda (r) (make-real (- r))))
+        (put 'negate '(complex)
+             (lambda (c) (negate c)))
+        (put 'negate '(rectangular)
+             (lambda (c)
+               (make-complex-from-real-imag (negate (complex-real-part c))
+                                            (negate (complex-imag-part c)))))
+        (put 'negate '(polar)
+             (lambda (c)
+               (make-complex-from-mag-ang (complex-magnitude c)
+                                          (+ (complex-angle c) pi))))]
+
+@sicp[#:label "Addition has to be defined for these types..."
+      (put 'add '(integer integer)
+           (lambda (a b) (make-integer (+ a b))))
+      (put 'add '(real real)
+           (lambda (a b) (make-real (+ a b))))]
+
+@(append-to-poly
+  (define (negate-term term)
+    (make-term (order term)
+               (negate (coeff term))))
+  (define (negate-poly poly)
+    (make-poly (variable poly)
+               (map negate-term (term-list poly))))
+  (define (sub-poly a b)
+    (add-poly a (negate-poly b)))
+  (put 'sub '(polynomial polynomial)
+       (lambda (a b) (tag (sub-poly a b))))
+  (put 'negate '(polynomial)
+       (lambda (p) (tag (negate-poly p)))))
+
+@sicp[(print-generic (sub (make-polynomial*
+                           'x
+                           (make-polynomial*
+                            'y
+                            (make-integer 2) 2
+                            (make-rational 1 2) 1) 2
+                           (make-integer 1) 1
+                           (make-rational 2 3) 0)
+                          (make-polynomial*
+                           'x
+                           (make-polynomial*
+                            'y
+                            (make-real 0.25) 2
+                            (make-integer 1) 1) 2
+                           (make-integer 3) 1
+                           (make-real 1.5) 0)))]

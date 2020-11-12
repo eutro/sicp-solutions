@@ -1,4 +1,6 @@
 #lang scribble/manual
+@(require "sicp-eval.rkt"
+          racket/vector)
 
 @title{SICP}
 
@@ -10,3 +12,5 @@ Written solutions to SICP. Done with the following study group:
           @item{Kamefrede}
           @item{@(hyperlink "https://github.com/williewillus/sicp" "williewillus")}
           @item{myself (Eutro)}]
+
+@(start-sicp-repl)

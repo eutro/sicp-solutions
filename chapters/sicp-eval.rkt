@@ -4,7 +4,10 @@
          (for-syntax racket/base))
 (provide sicp
          sicpnl
-         sicp-evaluator)
+         sicp-evaluator
+         start-sicp-repl)
+
+(define sicp-repl? (getenv "SICP_REPL"))
 
 (define sicp-evaluator
   (parameterize ([sandbox-output 'string]
@@ -12,6 +15,17 @@
                  [sandbox-memory-limit 50]
                  [sandbox-propagate-exceptions #f])
     (make-evaluator 'sicp)))
+
+(define (start-sicp-repl)
+  (when sicp-repl?
+    (displayln "SICP REPL")
+    (parameterize ([current-eval sicp-evaluator]
+                   [current-print (let ([prev (current-print)])
+                                    (lambda args
+                                      (display (get-output sicp-evaluator))
+                                      (display (get-error-output sicp-evaluator) (current-error-port))
+                                      (apply prev args)))])
+      (read-eval-print-loop))))
 
 (define-syntax
   (sicp synx)
