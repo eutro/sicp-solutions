@@ -1221,3 +1221,103 @@ And there aren't any convenient constructors for term lists:
                             (make-integer 1) 1) 2
                            (make-integer 3) 1
                            (make-real 1.5) 0)))]
+
+@section{Exercise 2.89}
+
+@sicpnl[;; I needed this
+        (define (comp1 f g)
+          (lambda args (f (apply g args))))
+        (define (comp f . gs)
+          (fold-left comp1 f gs))]
+
+To work with a generic termlist representation,
+it's important to know what is required to interface
+with the representation. These are what I have chosen:
+
+@itemlist[@item{A way to create an empty termlist.}
+          @item{A way to adjoin a term to the termlist.}
+          @item{A way to convert to a list of terms.}]
+
+The question of what a "term" should be is worth considering. There may
+be different ways to represent a term too, so I'll make a package for it also.
+
+@#reader scribble/comment-reader
+(sicp
+ #:label "The term package:"
+ (define (install-term-package)
+   (define (make-term order coeff) (list order coeff))
+   (define (order term) (car term))
+   (define (coeff term) (cadr term))
+   ;; interface to rest of system
+   (define (tag term) (attach-tag 'term term))
+   (put 'make 'term (comp tag make-term))
+   (put 'order '(term) order)
+   (put 'coeff '(term) coeff)
+   'done)
+ (install-term-package)
+ (define make-term (get 'make 'term))
+ (define (order term) (apply-generic 'order term))
+ (define (coeff term) (apply-generic 'coeff term)))
+
+@#reader scribble/comment-reader
+(sicp
+ #:label "The dense termlist package:"
+ (define (install-dense-termlist-package)
+   (define (the-empty-termlist) '())
+   (define (empty-termlist? term-list) (null? term-list))
+   (define (adjoin-term term termlist)
+     (if (< (order term) 0) (error "Order of term is negative -- ADJOIN-TERM"))
+     (if (= (order term) 0)
+         (cons (let ([c (coeff term)])
+                 (if (=zero? c) '() c))
+               termlist)
+         (let ([termlist (if (empty-termlist? termlist) '(()) termlist)])
+           (cons (car termlist)
+                 (adjoin-term (make-term (dec (order term))
+                                         (coeff term))
+                              (cdr termlist))))))
+   (define (termlist->list termlist)
+     (let loop ([built '()]
+                [termlist termlist]
+                [offset 0])
+       (if (null? termlist)
+           built
+           (loop (if (null? (car termlist))
+                     built
+                     (cons (make-term offset (car termlist))
+                           built))
+                 (cdr termlist)
+                 (inc offset)))))
+   ;; interface to rest of system
+   (define (tag termlist) (attach-tag 'dense-termlist termlist))
+   (put 'adjoin '(term dense-termlist)
+        (lambda (term termlist)
+          (tag (adjoin-term (attach-tag 'term term) termlist))))
+   (put 'empty 'dense-termlist (comp tag the-empty-termlist))
+   (put '->list 'dense-termlist termlist->list)
+   'done)
+ (install-dense-termlist-package))
+
+@sicpnl[(define empty-termlist (get 'empty 'dense-termlist))
+        (define (adjoin term termlist)
+          (apply-generic 'adjoin term termlist))
+        (define (termlist* . terms)
+          (fold-right adjoin (empty-termlist) terms))
+        (define (termlist->list termlist)
+          ((get '->list (type-tag termlist))
+           (contents termlist)))]
+
+@sicp[(begin
+        (for-each
+         (lambda (term)
+           (display-generic (coeff term))
+           (display "x^")
+           (display (order term))
+           (display " + "))
+         (termlist->list
+          (termlist*
+           (make-term 100 (make-integer 20))
+           (make-term 10 (make-integer 5))
+           (make-term 2 (make-integer 2)))))
+        (display "0")
+        (newline))]

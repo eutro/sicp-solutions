@@ -12,7 +12,7 @@
 (define sicp-evaluator
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
-                 [sandbox-memory-limit 50]
+                 [sandbox-memory-limit 100]
                  [sandbox-propagate-exceptions #f])
     (make-evaluator 'sicp)))
 
