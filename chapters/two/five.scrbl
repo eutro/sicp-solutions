@@ -1460,9 +1460,9 @@ The polynomial package just needs to be redefined to use the generic
                 (negate (coeff term))))
    (define (map-terms f termlist)
      (if (empty-termlist? termlist)
-         '()
-         (cons (f (first-term termlist))
-               (map-terms f (rest-terms termlist)))))
+         termlist
+         (adjoin-term (f (first-term termlist))
+                      (map-terms f (rest-terms termlist)))))
    (define (negate-poly poly)
      (make-poly (variable poly)
                 (map-terms negate-term (term-list poly))))
