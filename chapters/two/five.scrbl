@@ -959,6 +959,14 @@ sine, cosine, arctangent and square-root.
       (put 'project '(complex)
            (lambda (z) (apply-generic 'real-part z)))]
 
+@sicp[#:label "And displaying:"
+      (put 'display '(complex)
+           (lambda (complex)
+             (display-generic (complex-real-part complex))
+             (display " + ")
+             (display-generic (complex-imag-part complex))
+             (display "i")))]
+
 @sicp[#:label "Also, Quaternions will be removed from the tower:"
       (put 'raise '(complex) #f)]
 
@@ -989,11 +997,19 @@ sine, cosine, arctangent and square-root.
                (= 0 (numer r))))
         (put '=zero? '(real)
              (lambda (r)
-               (= r 0)))]
+               (= r 0)))
+        (put '=zero? '(complex)
+             (pipe (partial attach-tag 'complex)
+                   (partial equ? (make-complex-from-real-imag
+                                  (make-integer 0)
+                                  (make-integer 0)))))]
 
 @sicp[(=zero? (make-integer 0))
       (=zero? (make-rational 0 2))
-      (=zero? (make-real 0))]
+      (=zero? (make-real 0))
+      (=zero? (make-complex-from-real-imag
+               (make-integer 0)
+               (make-integer 0)))]
 
 @(define-syntax append-to-poly
    (let ([poly-appended '()]
@@ -1118,9 +1134,8 @@ Printing would be nice:
               (begin (display var)
                      (if (> (order term) 1)
                          (begin
-                           (display "^{")
-                           (display (order term))
-                           (display "}")))))
+                           (display "^")
+                           (display (order term))))))
           (let ([remaining (rest-terms terms)])
             (if (not (empty-termlist? remaining))
                 (begin (display " + ")
@@ -1236,88 +1251,291 @@ with the representation. These are what I have chosen:
 
 @itemlist[@item{A way to create an empty termlist.}
           @item{A way to adjoin a term to the termlist.}
-          @item{A way to convert to a list of terms.}]
+          @item{A way to get the first term of the termlist.}
+          @item{A way to get the rest of the terms of the termlist.}
+          @item{A way to know whether the termlist is empty.}]
 
-The question of what a "term" should be is worth considering. There may
-be different ways to represent a term too, so I'll make a package for it also.
+Since it is favourable to be able to use @tt{apply-generic},
+terms should also be tagged, but it should be possible to deal
+with terms that are untagged:
 
-@#reader scribble/comment-reader
-(sicp
- #:label "The term package:"
- (define (install-term-package)
-   (define (make-term order coeff) (list order coeff))
-   (define (order term) (car term))
-   (define (coeff term) (cadr term))
-   ;; interface to rest of system
-   (define (tag term) (attach-tag 'term term))
-   (put 'make 'term (comp tag make-term))
-   (put 'order '(term) order)
-   (put 'coeff '(term) coeff)
-   'done)
- (install-term-package)
- (define make-term (get 'make 'term))
- (define (order term) (apply-generic 'order term))
- (define (coeff term) (apply-generic 'coeff term)))
+@sicp[(define (make-term order coeff)
+        (attach-tag 'term (list order coeff)))
+      (define (tagged-term? term)
+        (eq? 'term (type-tag term)))
+      (define (order term)
+        (car (if (tagged-term? term)
+                 (contents term)
+                 term)))
+      (define (coeff term)
+        (cadr (if (tagged-term? term)
+                  (contents term)
+                  term)))]
+
+Since terms in this package may have any type of coefficient,
+the value for zero will simply be nil.
+
+In this way, any termlists with only nil coefficients remaining
+will be considered empty.
 
 @#reader scribble/comment-reader
 (sicp
  #:label "The dense termlist package:"
  (define (install-dense-termlist-package)
    (define (the-empty-termlist) '())
-   (define (empty-termlist? term-list) (null? term-list))
    (define (adjoin-term term termlist)
-     (if (< (order term) 0) (error "Order of term is negative -- ADJOIN-TERM"))
-     (if (= (order term) 0)
-         (cons (let ([c (coeff term)])
-                 (if (=zero? c) '() c))
-               termlist)
-         (let ([termlist (if (empty-termlist? termlist) '(()) termlist)])
-           (cons (car termlist)
-                 (adjoin-term (make-term (dec (order term))
-                                         (coeff term))
-                              (cdr termlist))))))
-   (define (termlist->list termlist)
-     (let loop ([built '()]
-                [termlist termlist]
-                [offset 0])
-       (if (null? termlist)
-           built
-           (loop (if (null? (car termlist))
-                     built
-                     (cons (make-term offset (car termlist))
-                           built))
-                 (cdr termlist)
-                 (inc offset)))))
+     (let ([target-length (dec (order term))]
+           [coeff (coeff term)])
+       (if (=zero? coeff)
+           termlist
+           (let loop ([termlist termlist]
+                      [len (length termlist)])
+             (cond
+               [(= len target-length)
+                (cons coeff termlist)]
+               [(< len target-length)
+                (loop (cons '() termlist) (inc len))]
+               [(= len (inc target-length))
+                (cons coeff
+                      (if (= len 0)
+                          '()
+                          (cdr termlist)))]
+               [(> len target-length)
+                (cons (car termlist)
+                      (loop (cdr termlist) (dec len)))])))))
+   (define (empty-termlist? termlist)
+     (or (null? termlist)
+         (and (null? (car termlist))
+              (empty-termlist? (cdr termlist)))))
+   (define (first-term termlist)
+     (if (empty-termlist? termlist)
+       (error "Cannot get first term of empty termlist -- FIRST-TERM"))
+     (let ([coeff (car termlist)])
+       (if (null? coeff)
+           (first-term (cdr termlist))
+           (make-term (length termlist) coeff))))
+   (define (rest-terms termlist)
+     (if (empty-termlist? termlist)
+       (error "Cannot get rest terms of empty termlist -- REST-TERMS"))
+     (let ([next (cdr termlist)])
+       (if (null? next)
+           (the-empty-termlist)
+           (let ([coeff (car next)])
+             (if (null? coeff)
+                 (rest-terms termlist)
+                 next)))))
    ;; interface to rest of system
    (define (tag termlist) (attach-tag 'dense-termlist termlist))
-   (put 'adjoin '(term dense-termlist)
-        (lambda (term termlist)
-          (tag (adjoin-term (attach-tag 'term term) termlist))))
+   (put 'adjoin '(term dense-termlist) (comp tag adjoin-term))
    (put 'empty 'dense-termlist (comp tag the-empty-termlist))
-   (put '->list 'dense-termlist termlist->list)
+   (put 'empty-termlist? '(dense-termlist) empty-termlist?)
+   (put 'first-term '(dense-termlist) first-term)
+   (put 'rest-terms '(dense-termlist) (comp tag rest-terms))
    'done)
  (install-dense-termlist-package))
 
-@sicpnl[(define empty-termlist (get 'empty 'dense-termlist))
-        (define (adjoin term termlist)
-          (apply-generic 'adjoin term termlist))
-        (define (termlist* . terms)
-          (fold-right adjoin (empty-termlist) terms))
-        (define (termlist->list termlist)
-          ((get '->list (type-tag termlist))
-           (contents termlist)))]
+@sicpnl[(define (adjoin-term term termlist)
+          (apply-generic 'adjoin
+                         (make-term (order term)
+                                    (coeff term))
+                         termlist))
+        (define (termlist* type . terms)
+          (fold-right adjoin-term ((get 'empty type)) terms))
+        (define (empty-termlist? termlist)
+          (apply-generic 'empty-termlist? termlist))
+        (define (first-term termlist)
+          (apply-generic 'first-term termlist))
+        (define (rest-terms termlist)
+          (apply-generic 'rest-terms termlist))]
 
-@sicp[(begin
-        (for-each
-         (lambda (term)
+@sicp[(print-el (termlist*
+                 'dense-termlist
+                 (make-term 1 (make-integer 20))
+                 (make-term 2 (make-integer 5))
+                 (make-term 3 (make-integer 2))))
+      (define (display-termlist termlist)
+        (if (not (empty-termlist? termlist))
+            (let ([term (first-term termlist)])
+              (display-generic (coeff term))
+              (display "x^")
+              (display (order term))
+              (let ([next (rest-terms termlist)])
+                (if (not (empty-termlist? next))
+                    (begin (display " + ")
+                           (display-termlist next)))))))
+      (display-termlist (termlist*
+                         'dense-termlist
+                         (make-term 1 (make-integer 20))
+                         (make-term 2 (make-integer 5))
+                         (make-term 3 (make-integer 2))))]
+
+@section{Exercise 2.90}
+
+The polynomial package just needs to be redefined to use the generic
+@tt{first-term}, @tt{rest-terms} and @tt{empty-termlist?}:
+
+@#reader scribble/comment-reader
+(sicpnl
+ (define (install-polynomial-package)
+   ;; internal procedures
+   ;; representation of poly
+   (define (make-poly variable term-list)
+     (cons variable term-list))
+   (define (variable p) (car p))
+   (define (term-list p) (cdr p))
+   (define (same-variable? v1 v2)
+     (and (variable? v1) (variable? v2) (eq? v1 v2)))
+   (define (variable? x) (symbol? x))
+
+   (define (the-empty-termlist)
+     ((get 'empty 'dense-termlist)))
+
+   (define (add-poly p1 p2)
+     (if (same-variable? (variable p1) (variable p2))
+         (make-poly (variable p1)
+                    (add-terms (term-list p1)
+                               (term-list p2)))
+         (error "Polys not in same var -- ADD-POLY"
+                (list p1 p2))))
+   (define (add-terms L1 L2)
+     (cond [(empty-termlist? L1) L2]
+           [(empty-termlist? L2) L1]
+           [else
+            (let ([t1 (first-term L1)]
+                  [t2 (first-term L2)])
+              (cond [(> (order t1) (order t2))
+                     (adjoin-term
+                      t1 (add-terms (rest-terms L1) L2))]
+                    [(< (order t1) (order t2))
+                     (adjoin-term
+                      t2 (add-terms L1 (rest-terms L2)))]
+                    [else
+                     (adjoin-term
+                      (make-term (order t1)
+                                 (add (coeff t1) (coeff t2)))
+                      (add-terms (rest-terms L1)
+                                 (rest-terms L2)))]))]))
+   (define (mul-poly p1 p2)
+     (if (same-variable? (variable p1)
+                         (variable p2))
+         (make-poly (variable p1)
+                    (mul-terms (term-list p1)
+                               (term-list p2)))
+         (error "Polys not in same var -- MUL-POLY"
+                (list p1 p2))))
+   (define (mul-terms L1 L2)
+     (if (empty-termlist? L1)
+         (empty-termlist)
+         (add-terms (mul-term-by-all-terms (first-term L1) L2)
+                    (mul-terms (rest-terms L1) L2))))
+   (define (mul-term-by-all-terms t1 L)
+     (if (empty-termlist? L)
+         (the-empty-termlist)
+         (let ((t2 (first-term L)))
+           (adjoin-term
+            (make-term (+ (order t1) (order t2))
+                       (mul (coeff t1) (coeff t2)))
+            (mul-term-by-all-terms t1 (rest-terms L))))))
+   (define (display-poly p)
+     (let ([var (variable p)])
+       (define (loop terms)
+         (let ([term (first-term terms)])
+           (display "(")
            (display-generic (coeff term))
-           (display "x^")
-           (display (order term))
-           (display " + "))
-         (termlist->list
-          (termlist*
-           (make-term 100 (make-integer 20))
-           (make-term 10 (make-integer 5))
-           (make-term 2 (make-integer 2)))))
-        (display "0")
-        (newline))]
+           (display ")")
+           (if (> (order term) 0)
+               (begin (display var)
+                      (if (> (order term) 1)
+                          (begin
+                            (display "^")
+                            (display (order term))))))
+           (let ([remaining (rest-terms terms)])
+             (if (not (empty-termlist? remaining))
+                 (begin (display " + ")
+                        (loop remaining))))))
+       (if (not (empty-termlist? (term-list p)))
+           (loop (term-list p)))))
+   (define (negate-term term)
+     (make-term (order term)
+                (negate (coeff term))))
+   (define (map-terms f termlist)
+     (if (empty-termlist? termlist)
+         '()
+         (cons (f (first-term termlist))
+               (map-terms f (rest-terms termlist)))))
+   (define (negate-poly poly)
+     (make-poly (variable poly)
+                (map-terms negate-term (term-list poly))))
+   (define (sub-poly a b)
+     (add-poly a (negate-poly b)))
+   ;; interface to rest of the system
+   (define (tag p) (attach-tag 'polynomial p))
+   (put 'add '(polynomial polynomial) (comp tag add-poly))
+   (put 'mul '(polynomial polynomial) (comp tag mul-poly))
+   (put 'make 'polynomial (comp tag make-poly))
+   (put 'display '(polynomial) display-poly)
+   (put '=zero? '(polynomial) (comp empty-termlist? term-list))
+   (put 'sub '(polynomial polynomial) (comp tag sub-poly))
+   (put 'negate '(polynomial) (comp tag negate-poly))
+   'done)
+ (install-polynomial-package))
+
+Then, here's a sparse termlist package:
+
+@#reader scribble/comment-reader
+(sicpnl
+ (define (install-sparse-polynomial-package)
+   (define (adjoin-term term term-list)
+     (if (=zero? (coeff term))
+         term-list
+         (cons term term-list)))
+   (define (the-empty-termlist) '())
+   (define (first-term term-list) (car term-list))
+   (define (rest-terms term-list) (cdr term-list))
+   (define (empty-termlist? term-list) (null? term-list))
+   ;; interface to rest of system
+   (define (tag termlist) (attach-tag 'sparse-termlist termlist))
+   (put 'adjoin '(term sparse-termlist) (comp tag attach-tag))
+   (put 'empty 'sparse-termlist (comp tag the-empty-termlist))
+   (put 'empty-termlist? '(sparse-termlist) empty-termlist?)
+   (put 'first-term '(sparse-termlist) first-term)
+   (put 'rest-terms '(sparse-termlist) (comp tag rest-terms))
+   'done)
+ (install-sparse-polynomial-package))
+
+@sicp[(define make-polynomial (get 'make 'polynomial))
+      (display-generic
+       (add (make-polynomial
+             'x
+             (termlist*
+              'dense-termlist
+              (make-term
+               3
+               (make-polynomial
+                'y
+                (termlist*
+                 'sparse-termlist
+                 (make-term 100 (make-integer 2))
+                 (make-term 2 (make-complex-from-real-imag
+                               (make-integer 1)
+                               (make-integer 2))))))
+              (make-term 2 (make-integer 1))
+              (make-term 1 (make-rational 2 3))
+              (make-term 0 (make-real 3.025))))
+            (make-polynomial
+             'x
+             (termlist*
+              'sparse-termlist
+              (make-term
+               100
+               (make-polynomial
+                'y
+                (termlist*
+                 'dense-termlist
+                 (make-term 2 (make-integer 2))
+                 (make-term 1 (make-complex-from-real-imag
+                               (make-integer 2)
+                               (make-integer 3))))))
+              (make-term 10 (make-integer 1))
+              (make-term 1 (make-rational 1 6))
+              (make-term 0 (make-real 1.025))))))]

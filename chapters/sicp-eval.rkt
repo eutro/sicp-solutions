@@ -20,11 +20,16 @@
   (when sicp-repl?
     (displayln "SICP REPL")
     (parameterize ([current-eval sicp-evaluator]
-                   [current-print (let ([prev (current-print)])
-                                    (lambda args
-                                      (display (get-output sicp-evaluator))
-                                      (display (get-error-output sicp-evaluator) (current-error-port))
-                                      (apply prev args)))])
+                   [current-print
+                    (let ([prev (current-print)])
+                      (lambda args
+                        (let ([out (get-output sicp-evaluator)]
+                              [eout (get-error-output sicp-evaluator)])
+                          (display out)
+                          (display eout (current-error-port))
+                          (when (not (equal? out ""))
+                              (newline))
+                          (apply prev args))))])
       (read-eval-print-loop))))
 
 (define-syntax
