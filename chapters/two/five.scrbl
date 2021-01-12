@@ -1780,3 +1780,188 @@ defined for some of the tower types yet:
          'sparse-termlist
          (make-term 3 (make-integer 1))
          (make-term 0 (make-integer 3)))))]
+
+@section{Exercise 2.92}
+
+@sicpnl[(define (complement f)
+          (lambda (x) (not (f x))))]
+
+These are in the polynomial package:
+@(define-syntax (ex-292)
+   (let ([new-defs
+
+          #'(define (install-polynomial-package)
+              (define (variable>? v1 v2)
+                (string>? (symbol->string v1) (symbol->string v2)))
+              (define (constant-term? t)
+                (zero? (order t)))
+              (define (filter-terms f l)
+                (cond [(empty-termlist? l) l]
+                      [(f (first-term l))
+                       (adjoin-term (first-term l)
+                                    (filter-terms f (rest-terms l)))]
+                      [else
+                       (filter-terms f (rest-terms l))]))
+              (define (add-poly p1 p2)
+                (cond [(same-variable? (variable p1) (variable p2))
+                       (make-poly (variable p1)
+                                  (add-terms (term-list p1)
+                                             (term-list p2)))]
+                      [(variable>? (variable p1) (variable p2))
+                       (make-poly (variable p1)
+                                  (add-terms
+                                   (filter-terms (complement constant-term?)
+                                                 (term-list p1))
+                                   (termlist*
+                                    'dense-termlist
+                                    (make-term
+                                     0
+                                     (tag (make-poly
+                                           (variable p2)
+                                           (add-terms (term-list p2)
+                                                      (filter-terms constant-term?
+                                                                    (term-list p1)))))))))]
+                      [else (add-poly p2 p1)]))
+              (define (mul-poly p1 p2)
+                (cond [(same-variable? (variable p1) (variable p2))
+                       (make-poly (variable p1)
+                                  (mul-terms (term-list p1)
+                                             (term-list p2)))]
+                      [(variable>? (variable p1) (variable p2))
+                       ;; TODO implement
+                       (error "Polys not in same var -- MUL-POLY"
+                              (list p1 p2))]
+                      [else (mul-poly p2 p1)]))
+              (code:comment "<the rest of the polynomial package ...>"))])
+
+     #`(sicpnl
+        (eval:alts
+         #,new-defs
+         (define (install-polynomial-package)
+           #,@(caddr new-defs)
+           ;; internal procedures
+           ;; representation of poly
+           (define (make-poly variable term-list)
+             (cons variable term-list))
+           (define (variable p) (car p))
+           (define (term-list p) (cdr p))
+           (define (same-variable? v1 v2)
+             (and (variable? v1) (variable? v2) (eq? v1 v2)))
+           (define (variable? x) (symbol? x))
+           (define (the-empty-termlist)
+             ((get 'empty 'sparse-termlist)))
+           (define (add-terms L1 L2)
+             (cond [(empty-termlist? L1) L2]
+                   [(empty-termlist? L2) L1]
+                   [else
+                    (let ([t1 (first-term L1)]
+                          [t2 (first-term L2)])
+                      (cond [(> (order t1) (order t2))
+                             (adjoin-term
+                              t1 (add-terms (rest-terms L1) L2))]
+                            [(< (order t1) (order t2))
+                             (adjoin-term
+                              t2 (add-terms L1 (rest-terms L2)))]
+                            [else
+                             (adjoin-term
+                              (make-term (order t1)
+                                         (add (coeff t1) (coeff t2)))
+                              (add-terms (rest-terms L1)
+                                         (rest-terms L2)))]))]))
+           (define (mul-terms L1 L2)
+             (if (empty-termlist? L1)
+                 (the-empty-termlist)
+                 (add-terms (mul-term-by-all-terms (first-term L1) L2)
+                            (mul-terms (rest-terms L1) L2))))
+           (define (mul-term-by-all-terms t1 L)
+             (if (empty-termlist? L)
+                 (the-empty-termlist)
+                 (let ((t2 (first-term L)))
+                   (adjoin-term
+                    (make-term (+ (order t1) (order t2))
+                               (mul (coeff t1) (coeff t2)))
+                    (mul-term-by-all-terms t1 (rest-terms L))))))
+           (define (display-poly p)
+             (let ([var (variable p)])
+               (define (loop terms)
+                 (let ([term (first-term terms)])
+                   (display "(")
+                   (display-generic (coeff term))
+                   (display ")")
+                   (if (> (order term) 0)
+                       (begin (display var)
+                              (if (> (order term) 1)
+                                  (begin
+                                    (display "^")
+                                    (display (order term))))))
+                   (let ([remaining (rest-terms terms)])
+                     (if (not (empty-termlist? remaining))
+                         (begin (display " + ")
+                                (loop remaining))))))
+               (if (not (empty-termlist? (term-list p)))
+                   (loop (term-list p)))))
+           (define (negate-term term)
+             (make-term (order term)
+                        (negate (coeff term))))
+           (define (map-terms f termlist)
+             (if (empty-termlist? termlist)
+                 termlist
+                 (adjoin-term (f (first-term termlist))
+                              (map-terms f (rest-terms termlist)))))
+           (define (negate-poly poly)
+             (make-poly (variable poly)
+                        (map-terms negate-term (term-list poly))))
+           (define (sub-poly a b)
+             (add-poly a (negate-poly b)))
+           (define (div-terms L1 L2)
+             (if (empty-termlist? L1)
+                 (list (the-empty-termlist) (the-empty-termlist))
+                 (let ([t1 (first-term L1)]
+                       [t2 (first-term L2)])
+                   (if (> (order t2) (order t1))
+                       (list (the-empty-termlist) L1)
+                       (let ([new-c (div (coeff t1) (coeff t2))]
+                             [new-o (- (order t1) (order t2))])
+                         (let ([rest-of-result
+                                (div-terms
+                                 (add-terms L1
+                                            (mul-term-by-all-terms
+                                             (make-term new-o (negate new-c))
+                                             L2))
+                                 L2)])
+                           (cons (adjoin-term (make-term new-o new-c)
+                                              (car rest-of-result))
+                                 (cdr rest-of-result))))))))
+           (define (div-poly p1 p2)
+             (if (same-variable? (variable p1) (variable p2))
+                 (map (partial make-poly (variable p1))
+                      (div-terms (term-list p1)
+                                 (term-list p2)))
+                 (error "Polys not in same var -- DIV-POLY"
+                        (list p1 p2))))
+           ;; interface to rest of the system
+           (define (tag p) (attach-tag 'polynomial p))
+           (put 'div '(polynomial polynomial) (comp (partial map tag) div-poly))
+           (put 'add '(polynomial polynomial) (comp tag add-poly))
+           (put 'mul '(polynomial polynomial) (comp tag mul-poly))
+           (put 'make 'polynomial (comp tag make-poly))
+           (put 'display '(polynomial) display-poly)
+           (put '=zero? '(polynomial) (comp empty-termlist? term-list))
+           (put 'sub '(polynomial polynomial) (comp tag sub-poly))
+           (put 'negate '(polynomial) (comp tag negate-poly))
+           'done)))))
+
+@sicp[(display-generic
+       (add
+        (make-polynomial
+         'x
+         (termlist*
+          'dense-termlist
+          (make-term 1 (make-integer 1))
+          (make-term 0 (make-integer 2))))
+        (make-polynomial
+         'y
+         (termlist*
+          'dense-termlist
+          (make-term 1 (make-integer 1))
+          (make-term 0 (make-integer 2))))))]
