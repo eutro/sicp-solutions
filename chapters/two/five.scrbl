@@ -1951,6 +1951,8 @@ These are in the polynomial package:
            (put 'negate '(polynomial) (comp tag negate-poly))
            'done)))))
 
+@(ex-292)
+
 @sicp[(display-generic
        (add
         (make-polynomial
