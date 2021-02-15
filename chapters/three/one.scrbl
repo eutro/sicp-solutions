@@ -165,3 +165,28 @@ Then:
       (new-rand 'generate)
       ((new-rand 'reset) 100)
       (new-rand 'generate)]
+
+@section{Exercise 3.7}
+
+@sicpnl[(define (make-joint account account-password joint-password)
+          (define wrong-password
+            (let ([attempts-left 7])
+              (lambda args
+                (if (> attempts-left 0)
+                    (begin
+                      (set! attempts-left (dec attempts-left))
+                      "Incorrect password")
+                    (call-the-cops)))))
+          (define (dispatch pwd m)
+            (if (eq? pwd joint-password)
+                (account account-password m)
+                wrong-password))
+          dispatch)]
+
+@sicp[(define peter-acc (make-account 1000 'open-sesame))
+      (define paul-acc
+        (make-joint peter-acc 'open-sesame 'rosebud))
+      ((peter-acc 'open-sesame 'withdraw) 30)
+      ((peter-acc 'rosebud 'withdraw) 30)
+      ((paul-acc 'open-sesame 'deposit) 20)
+      ((paul-acc 'rosebud 'deposit) 20)]
