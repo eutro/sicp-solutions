@@ -1786,10 +1786,18 @@ defined for some of the tower types yet:
 @sicpnl[(define (complement f)
           (lambda (x) (not (f x))))]
 
-These are in the polynomial package:
+The ordering of variables will just be alphabetical.
+
+When adding polynomials of different variables, the polynomial
+with the "lower" variable will be added to the constant term
+of the "higher" variabled polynomial.
+
+For multiplying polynomials of different variables, the coefficient
+of each term in the "higher" polynomial will be multiplied by the whole
+of the "lower" polynomial.
+
 @(define-syntax ex-292
    (let ([new-defs
-
           #'(define (install-polynomial-package)
               (code:comment "<the rest of the polynomial package ...>")
               (define (variable>? v1 v2)
@@ -1829,9 +1837,17 @@ These are in the polynomial package:
                                   (mul-terms (term-list p1)
                                              (term-list p2)))]
                       [(variable>? (variable p1) (variable p2))
-                       ;; TODO implement
-                       (error "Polys not in same var -- MUL-POLY"
-                              (list p1 p2))]
+                       (make-poly (variable p1)
+                                  (map-terms
+                                   (lambda (term)
+                                     (make-term
+                                      (order term)
+                                      (tag (make-poly
+                                            (variable p2)
+                                            (mul-term-by-all-terms
+                                             (make-term 0 (coeff term))
+                                             (term-list p2))))))
+                                   (term-list p1)))]
                       [else (mul-poly p2 p1)])))])
 
      (lambda (stx)
@@ -1955,17 +1971,19 @@ These are in the polynomial package:
 
 @(ex-292)
 
-@sicp[(display-generic
-       (add
-        (make-polynomial
-         'x
-         (termlist*
-          'dense-termlist
-          (make-term 1 (make-integer 1))
-          (make-term 0 (make-integer 2))))
-        (make-polynomial
-         'y
-         (termlist*
-          'dense-termlist
-          (make-term 1 (make-integer 1))
-          (make-term 0 (make-integer 2))))))]
+@sicp[(define polys
+        (list
+         (make-polynomial
+          'x
+          (termlist*
+           'dense-termlist
+           (make-term 1 (make-integer 1))
+           (make-term 0 (make-integer 2))))
+         (make-polynomial
+          'y
+          (termlist*
+           'dense-termlist
+           (make-term 1 (make-integer 1))
+           (make-term 0 (make-integer 2))))))
+      (display-generic (apply add polys))
+      (display-generic (apply mul polys))]
