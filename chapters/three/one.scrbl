@@ -190,3 +190,24 @@ Then:
       ((peter-acc 'rosebud 'withdraw) 30)
       ((paul-acc 'open-sesame 'deposit) 20)
       ((paul-acc 'rosebud 'deposit) 20)]
+
+@section{Exercise 3.8}
+
+@sicpnl[(define (order-matters)
+          (let ([last 1])
+            (lambda (n)
+              (let ([ret
+                     (if (= last n)
+                         n
+                         0)])
+                (set! last n)
+                ret))))]
+
+@sicp[(let* ([f (order-matters)]
+             [x (f 0)]
+             [y (f 1)])
+        (+ x y))
+      (let* ([f (order-matters)]
+             [y (f 1)]
+             [x (f 0)])
+        (+ x y))]
