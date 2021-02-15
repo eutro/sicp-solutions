@@ -139,3 +139,29 @@
            4.0))
       (estimate-pi 10000)
       (estimate-pi 10000)]
+
+@section{Exercise 3.6}
+
+@tt{rand-update} is currently undefined, so we'll define it as @tt{inc}.
+
+@sicpnl[(define rand-update inc)]
+
+Then:
+
+@sicpnl[(define new-rand
+          (let ([last 0])
+            (lambda (op)
+              (cond
+                [(eq? op 'generate)
+                 (set! last (rand-update last))
+                 last]
+                [(eq? op 'reset)
+                 (lambda (new-last) (set! last new-last))]
+                [else
+                 (error "Unknown operation -- NEW-RAND"
+                        op)]))))]
+
+@sicp[(new-rand 'generate)
+      (new-rand 'generate)
+      ((new-rand 'reset) 100)
+      (new-rand 'generate)]
