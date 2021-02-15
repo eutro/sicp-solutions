@@ -17,3 +17,24 @@
 @sicp[(define A (make-accumulator 5))
       (A 10)
       (A 10)]
+
+@section{Exercise 3.2}
+
+@sicpnl[(define (make-monitored f)
+          (let ([called 0])
+            (lambda (arg)
+              (cond
+                [(eq? arg 'how-many-calls?) called]
+                [(eq? arg 'reset-count) (set! called 0)]
+                [else
+                 (set! called (inc called))
+                 (f arg)]))))]
+
+@sicp[(define s (make-monitored sqrt))
+      (s 100)
+      (s 'how-many-calls?)
+      (s 400)
+      (s 'how-many-calls?)
+      (s 'reset-count)
+      (s 4)
+      (s 'how-many-calls?)]
