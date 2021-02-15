@@ -63,3 +63,42 @@
 @sicp[(define acc (make-account 100 'secret-password))
       ((acc 'secret-password 'withdraw) 40)
       ((acc 'some-other-password 'deposit) 50)]
+
+@section{Exercise 3.4}
+
+@sicpnl[(define (make-account balance password)
+          (define (withdraw amount)
+            (if (>= balance amount)
+                (begin (set! balance (- balance amount))
+                       balance)
+                "Insufficient funds"))
+          (define (deposit amount)
+            (set! balance (+ balance amount))
+            balance)
+          (define wrong-password
+            (let ([attempts-left 7])
+              (lambda args
+                (if (> attempts-left 0)
+                    (begin
+                      (set! attempts-left (dec attempts-left))
+                      "Incorrect password")
+                    (call-the-cops)))))
+          (define (dispatch pwd m)
+            (cond [(not (eq? pwd password)) wrong-password]
+                  [(eq? m 'withdraw) withdraw]
+                  [(eq? m 'deposit) deposit]
+                  [else (error "Unknown request -- MAKE-ACCOUNT"
+                               m)]))
+          dispatch)
+        (define (call-the-cops)
+          (error "The cops have been called"))]
+
+@sicp[(define acc (make-account 100 'secret-password))
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)
+      ((acc 'wrong-password 'withdraw) 10)]
